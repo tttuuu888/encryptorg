@@ -1223,6 +1223,125 @@
 
 #+RESULTS:
 | AES-128/CCM(16 | 3) Dec: 102030405060708090A0B0C0D0E0F000 |
+* AES key wrapper (RFC3394)
+** Wrap and Unwrap
+#+HEADER: :var KEK = "000102030405060708090A0B0C0D0E0F"
+#+HEADER: :var KEY = "00112233445566778899AABBCCDDEEFF"
+#+begin_src C++
+  #include <botan/block_cipher.h>
+  #include <botan/hex.h>
+  #include <iostream>
+
+  using namespace std;
+  using namespace Botan;
+
+  int keyWrapper(vector<uint8_t> &kek, vector<uint8_t> &key, vector<uint8_t> &wrappedKey)
+  {
+      unique_ptr<BlockCipher> cipher(BlockCipher::create("AES-128"));
+      cipher->set_key(kek);
+
+      int n = key.size() / 8;
+      uint8_t R[n+1][8] = {0,};
+      vector<uint8_t> A = hex_decode("A6A6A6A6A6A6A6A6");
+
+      for(int i=0; i<n; i++)
+          std::copy(key.begin()+(i*8), key.begin()+(i*8)+8, R[i+1]);
+
+      for(int j=0; j<=5; j++) {
+          for(int i=1; i<=n; i++) {
+              vector<uint8_t> B(A);
+              B.insert(B.end(), R[i], R[i]+8);
+
+              cipher->encrypt(B);
+
+              A.clear();
+              A.assign(B.begin(), B.begin()+8);
+
+              int xort = (n*j)+i, ari = 7;
+              while(xort != 0) {
+                  A[ari] ^= (xort & 0xFF);
+                  ari -= 1;
+                  xort = xort >> 8;
+              }
+
+              std::copy(B.begin()+8, B.end(), R[i]);
+          }
+      }
+
+      for(int i=1; i<=n; i++)
+          A.insert(A.end(), R[i], R[i]+8);
+
+      wrappedKey.clear();
+      wrappedKey.assign(A.begin(), A.end());
+
+      cout << "Wrappedkey: " << hex_encode(wrappedKey) << endl;
+
+      return 0;
+  }
+
+  int keyUnwrapper(vector<uint8_t> &kek, vector<uint8_t> &wrappedKey, vector<uint8_t> &key)
+  {
+      unique_ptr<BlockCipher> cipher(BlockCipher::create("AES-128"));
+      cipher->set_key(kek);
+
+      int n = wrappedKey.size() / 8 - 1;
+      uint8_t R[n+2][8] = {0,};
+      vector<uint8_t> A;
+      A.assign(wrappedKey.begin(), wrappedKey.begin()+8);
+
+      for(int i=1; i<n+1; i++)
+          std::copy(wrappedKey.begin()+(i*8), wrappedKey.begin()+(i*8)+8, R[i]);
+
+      for(int j=5; j>=0; j--) {
+          for(int i=n; i>=1; i--) {
+              int xort = (n*j)+i, ari = 7;
+              while(xort != 0) {
+                  A[ari] ^= (xort & 0xFF);
+                  ari -= 1;
+                  xort = xort >> 8;
+              }
+
+              vector<uint8_t> B(A);
+              B.insert(B.end(), R[i], R[i]+8);
+
+              cipher->decrypt(B);
+
+              A.clear();
+              A.assign(B.begin(), B.begin()+8);
+
+              std::copy(B.begin()+8, B.end(), R[i]);
+          }
+      }
+
+      std::vector<uint8_t> originalKey(R[1], R[1]+16);
+      key.clear();
+      key.assign(originalKey.begin(), originalKey.end());
+
+      cout << "IV: " << hex_encode(A) << endl;
+      cout << "OriginalKey: " << hex_encode(key) << endl;
+
+      return 0;
+  }
+
+  int main ()
+  {
+      vector<uint8_t> kek = hex_decode(KEK);
+      vector<uint8_t> key = hex_decode(KEY);
+      vector<uint8_t> wrappedKey;
+      vector<uint8_t> restoredKey;
+
+      keyWrapper(kek, key, wrappedKey);
+      keyUnwrapper(kek, wrappedKey, restoredKey);
+
+      return 0;
+  }
+#+end_src
+
+#+RESULTS:
+| Wrappedkey:  | 1FA68B0A8112B447AEF34BD8FB5A7B829D3E862371D2CFE5 |
+| IV:          | A6A6A6A6A6A6A6A6                                 |
+| OriginalKey: | 00112233445566778899AABBCCDDEEFF                 |
+
 * ARIA
 ** ARIA-128
 *** Encrypt
