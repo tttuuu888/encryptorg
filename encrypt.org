@@ -1224,7 +1224,116 @@
 #+RESULTS:
 | AES-128/CCM(16 | 3) Dec: 102030405060708090A0B0C0D0E0F000 |
 * AES key wrapper (RFC3394)
-** Wrapper functions
+** Using botan interface
+*** Demo
+#+HEADER: :var KEK = "000102030405060708090A0B0C0D0E0F"
+#+HEADER: :var KEY = "00112233445566778899AABBCCDDEEFF"
+#+begin_src C++ :noweb yes
+  #include <botan/block_cipher.h>
+  #include <botan/hex.h>
+  #include <botan/nist_keywrap.h>
+  #include <iostream>
+
+  using namespace std;
+  using namespace Botan;
+
+  int main ()
+  {
+      vector<uint8_t> kek = hex_decode(KEK);
+      vector<uint8_t> key = hex_decode(KEY);
+
+      uint8_t keyArr[key.size()];
+      for(int i=0; i<key.size(); i++)
+          keyArr[i] = key[i];
+
+      unique_ptr<BlockCipher> cipher(BlockCipher::create("AES-128"));
+      cipher->set_key(kek);
+
+      vector<uint8_t> wrappedKey = nist_key_wrap(keyArr, key.size(), *cipher);
+      cout << "WrappedKey: " << hex_encode(wrappedKey) << endl;
+
+      uint8_t wrappedKeyArr[wrappedKey.size()];
+      for(int i=0; i<wrappedKey.size(); i++)
+          wrappedKeyArr[i] = wrappedKey[i];
+
+      secure_vector<uint8_t> restoredKey = nist_key_unwrap(wrappedKeyArr, wrappedKey.size(), *cipher);
+      cout << "UnWrappedKey: " << hex_encode(restoredKey) << endl;
+
+      return 0;
+  }
+#+end_src
+
+#+RESULTS:
+| WrappedKey:   | 1FA68B0A8112B447AEF34BD8FB5A7B829D3E862371D2CFE5 |
+| UnWrappedKey: | 00112233445566778899AABBCCDDEEFF                 |
+*** Wrap
+#+HEADER: :var KEK = "000102030405060708090A0B0C0D0E0F"
+#+HEADER: :var KEY = "00112233445566778899AABBCCDDEEFF"
+#+begin_src C++ :noweb yes
+  #include <botan/block_cipher.h>
+  #include <botan/hex.h>
+  #include <botan/nist_keywrap.h>
+  #include <iostream>
+
+  using namespace std;
+  using namespace Botan;
+
+  int main ()
+  {
+      vector<uint8_t> kek = hex_decode(KEK);
+      vector<uint8_t> key = hex_decode(KEY);
+
+      uint8_t keyArr[key.size()];
+      for(int i=0; i<key.size(); i++)
+          keyArr[i] = key[i];
+
+      unique_ptr<BlockCipher> cipher(BlockCipher::create("AES-128"));
+      cipher->set_key(kek);
+
+      vector<uint8_t> wrappedKey = nist_key_wrap(keyArr, key.size(), *cipher);
+      cout << "WrappedKey: " << hex_encode(wrappedKey) << endl;
+
+      return 0;
+  }
+#+end_src
+
+#+RESULTS:
+: WrappedKey: 1FA68B0A8112B447AEF34BD8FB5A7B829D3E862371D2CFE5
+*** Unwrap
+#+HEADER: :var KEK = "000102030405060708090A0B0C0D0E0F"
+#+HEADER: :var WRAPPED_KEY = "1FA68B0A8112B447AEF34BD8FB5A7B829D3E862371D2CFE5"
+#+begin_src C++ :noweb yes
+  #include <botan/block_cipher.h>
+  #include <botan/hex.h>
+  #include <botan/nist_keywrap.h>
+  #include <iostream>
+
+  using namespace std;
+  using namespace Botan;
+
+  int main ()
+  {
+      vector<uint8_t> kek = hex_decode(KEK);
+      vector<uint8_t> wrappedKey = hex_decode(WRAPPED_KEY);;
+
+      unique_ptr<BlockCipher> cipher(BlockCipher::create("AES-128"));
+      cipher->set_key(kek);
+
+      uint8_t wrappedKeyArr[wrappedKey.size()];
+      for(int i=0; i<wrappedKey.size(); i++)
+          wrappedKeyArr[i] = wrappedKey[i];
+
+      secure_vector<uint8_t> restoredKey = nist_key_unwrap(wrappedKeyArr, wrappedKey.size(), *cipher);
+      cout << "UnWrappedKey: " << hex_encode(restoredKey) << endl;
+
+      return 0;
+  }
+#+end_src
+
+#+RESULTS:
+: UnWrappedKey: 00112233445566778899AABBCCDDEEFF
+** Using implemented function
+*** Wrapper functions
 #+name: wrapper_functions
 #+begin_src C++
   static vector<uint8_t> defaultIv{0xA6,0xA6,0xA6,0xA6,0xA6,0xA6,0xA6,0xA6};
@@ -1341,7 +1450,7 @@
   }
 #+end_src
 
-** Demo
+*** Demo
 #+HEADER: :var KEK = "000102030405060708090A0B0C0D0E0F"
 #+HEADER: :var KEY = "00112233445566778899AABBCCDDEEFF"
 #+begin_src C++ :noweb yes
@@ -1373,7 +1482,7 @@
 | IV:          | A6A6A6A6A6A6A6A6                                 |
 | OriginalKey: | 00112233445566778899AABBCCDDEEFF                 |
 
-** Wrap
+*** Wrap
 #+HEADER: :var KEK = "000102030405060708090A0B0C0D0E0F"
 #+HEADER: :var KEY = "00112233445566778899AABBCCDDEEFF"
 #+begin_src C++ :noweb yes
@@ -1401,7 +1510,7 @@
 #+RESULTS:
 : Wrappedkey: 1FA68B0A8112B447AEF34BD8FB5A7B829D3E862371D2CFE5
 
-** Unwrap
+*** Unwrap
 #+HEADER: :var KEK = "000102030405060708090A0B0C0D0E0F"
 #+HEADER: :var WRAPPED_KEY = "1FA68B0A8112B447AEF34BD8FB5A7B829D3E862371D2CFE5"
 #+begin_src C++ :noweb yes
@@ -1430,7 +1539,7 @@
 | IV:          | A6A6A6A6A6A6A6A6                 |
 | OriginalKey: | 00112233445566778899AABBCCDDEEFF |
 
-** Wrap with IV
+*** Wrap with IV
 #+HEADER: :var KEK = "000102030405060708090A0B0C0D0E0F"
 #+HEADER: :var KEY = "00112233445566778899AABBCCDDEEFF"
 #+HEADER: :var IV = "A6A6A6A6A6A6A6A6"
@@ -1460,7 +1569,7 @@
 #+RESULTS:
 : Wrappedkey: 1FA68B0A8112B447AEF34BD8FB5A7B829D3E862371D2CFE5
 
-** Unwrap with IV
+*** Unwrap with IV
 #+HEADER: :var KEK = "000102030405060708090A0B0C0D0E0F"
 #+HEADER: :var WRAPPED_KEY = "1FA68B0A8112B447AEF34BD8FB5A7B829D3E862371D2CFE5"
 #+HEADER: :var IV = "A6A6A6A6A6A6A6A6"
@@ -1490,7 +1599,6 @@
 #+RESULTS:
 | IV:          | A6A6A6A6A6A6A6A6                 |
 | OriginalKey: | 00112233445566778899AABBCCDDEEFF |
-
 * ARIA
 ** ARIA-128
 *** Encrypt
