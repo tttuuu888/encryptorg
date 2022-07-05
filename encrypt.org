@@ -151,6 +151,48 @@
 #+RESULTS:
 : B7FB0BE696FEAEC6F647F2F2A7B887944CF39546B1422105FB7FBEBC65787550
 
+** AES-128 CMAC
+#+HEADER: :var KEY  = "000102030405060708090A0B0C0D0E0F"
+#+HEADER: :var DATA = "000102030405060708090A0B0C0D0E0F"
+#+begin_src C++
+  #include <botan/mac.h>
+  #include <botan/hex.h>
+  #include <iostream>
+
+  using namespace std;
+  using namespace Botan;
+
+  int main()
+  {
+      const vector<uint8_t> key = hex_decode(KEY);
+      const vector<uint8_t> iv = hex_decode("");
+      const vector<uint8_t> data = hex_decode(DATA);
+      unique_ptr<MessageAuthenticationCode> mac(MessageAuthenticationCode::create("CMAC(AES-128)"));
+
+      if(!mac)
+          return 1;
+
+      mac->set_key(key);
+      mac->start(iv);
+      mac->update(data);
+      secure_vector<uint8_t> tag = mac->final();
+      cout << mac->name() << ": " << hex_encode(tag) << endl;
+
+      // Verify created MAC
+      mac->set_key(key);
+      mac->start(iv);
+      mac->update(data);
+      cout << "Verification: " << (mac->verify_mac(tag) ? "success" : "failure");
+
+      return 0;
+  }
+#+end_src
+
+#+RESULTS:
+| CMAC(AES-128): | 7BCFBBCA7A2EA68B966FC5399F74809E |
+| Verification:  | success                          |
+
+#+end_src
 ** AES-128 GMAC
 #+HEADER: :var KEY   = "000102030405060708090A0B0C0D0E0F"
 #+HEADER: :var NONCE = "FFFFFFFFFFFFFFFFFFFFFFFF"
