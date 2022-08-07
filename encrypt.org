@@ -1169,6 +1169,144 @@
 
 #+RESULTS:
 : AES-128/CBC/OneAndZeros Dec: 102030405060708090A0B0C0D0E0F000
+** AES-CBC-256 PKCS7 Padding
+*** Encrypt
+#+HEADER: :var KEY  = "000102030405060708090A0B0C0D0E0F000102030405060708090A0B0C0D0E0F"
+#+HEADER: :var TEXT = "102030405060708090A0B0C0D0E0F000"
+#+HEADER: :var IV   = "112233445566778899AABBCCDDEEFF00"
+#+begin_src C++
+  #include <botan/cbc.h>
+  #include <botan/hex.h>
+  #include <iostream>
+
+  using namespace std;
+  using namespace Botan;
+
+  int main ()
+  {
+      const vector<uint8_t> input = hex_decode(TEXT);
+      const vector<uint8_t> key = hex_decode(KEY);
+      const vector<uint8_t> iv = hex_decode(IV);
+
+      unique_ptr<Cipher_Mode> enc = Cipher_Mode::create("AES-256/CBC/PKCS7", ENCRYPTION);
+
+      secure_vector<uint8_t> pt(input.data(), input.data()+input.size());
+
+      enc->set_key(key);
+      enc->start(iv);
+      enc->finish(pt);
+
+      string ret = hex_encode(pt);
+      cout << enc->name() <<  " Enc: " << ret << endl;
+
+      return 0;
+  }
+#+end_src
+
+#+RESULTS:
+: AES-256/CBC/PKCS7 Enc: 19F01F6269952794B3714810E26BE3D5E6267DFE058BF54D4E377CBD3E434FD4
+*** Decrypt
+#+HEADER: :var KEY       = "000102030405060708090A0B0C0D0E0F"
+#+HEADER: :var ENCRYPTED = "A28F5667E6CE191444647F5B2E570AE8644F7CE15636077CFB9ADD5CD87FC6C6"
+#+HEADER: :var IV        = "112233445566778899AABBCCDDEEFF00"
+#+begin_src C++
+  #include <botan/gcm.h>
+  #include <botan/hex.h>
+  #include <iostream>
+
+  using namespace std;
+  using namespace Botan;
+
+  int main ()
+  {
+      vector<uint8_t> input = hex_decode(ENCRYPTED);
+      const vector<uint8_t> key = hex_decode(KEY);
+      const vector<uint8_t> iv = hex_decode(IV);
+
+      unique_ptr<Cipher_Mode> dec = Cipher_Mode::create("AES-128/CBC/PKCS7", DECRYPTION);
+
+      secure_vector<uint8_t> pt(input.data(), input.data() + input.size());
+      dec->set_key(key);
+      dec->start(iv);
+      dec->finish(pt);
+
+      cout << dec->name() << " Dec: " << hex_encode(pt) << "\n";
+
+      return 0;
+  }
+#+end_src
+
+#+RESULTS:
+: AES-128/CBC/PKCS7 Dec: 102030405060708090A0B0C0D0E0F000
+** AES-CBC-256 OneAndZeros Padding
+*** Encrypt
+#+HEADER: :var KEY  = "000102030405060708090A0B0C0D0E0F000102030405060708090A0B0C0D0E0F"
+#+HEADER: :var TEXT = "112233445566665544332211"
+#+HEADER: :var IV   = "112233445566778899AABBCCDDEEFF00"
+#+begin_src C++
+  #include <botan/cbc.h>
+  #include <botan/hex.h>
+  #include <iostream>
+
+  using namespace std;
+  using namespace Botan;
+
+  int main ()
+  {
+      const vector<uint8_t> input = hex_decode(TEXT);
+      const vector<uint8_t> key = hex_decode(KEY);
+      const vector<uint8_t> iv = hex_decode(IV);
+
+      unique_ptr<Cipher_Mode> enc = Cipher_Mode::create("AES-256/CBC/OneAndZeros", ENCRYPTION);
+
+      secure_vector<uint8_t> pt(input.data(), input.data()+input.size());
+
+      enc->set_key(key);
+      enc->start(iv);
+      enc->finish(pt);
+
+      string ret = hex_encode(pt);
+      cout << enc->name() <<  " Enc: " << ret << endl;
+
+      return 0;
+  }
+#+end_src
+
+#+RESULTS:
+: AES-256/CBC/OneAndZeros Enc: 7B1803081258477C997943AE6EDD290C
+*** Decrypt
+#+HEADER: :var KEY       = "000102030405060708090A0B0C0D0E0F000102030405060708090A0B0C0D0E0F"
+#+HEADER: :var ENCRYPTED = "7B1803081258477C997943AE6EDD290C"
+#+HEADER: :var IV        = "112233445566778899AABBCCDDEEFF00"
+#+begin_src C++
+  #include <botan/gcm.h>
+  #include <botan/hex.h>
+  #include <iostream>
+
+  using namespace std;
+  using namespace Botan;
+
+  int main ()
+  {
+      vector<uint8_t> input = hex_decode(ENCRYPTED);
+      const vector<uint8_t> key = hex_decode(KEY);
+      const vector<uint8_t> iv = hex_decode(IV);
+
+      unique_ptr<Cipher_Mode> dec = Cipher_Mode::create("AES-256/CBC/OneAndZeros", DECRYPTION);
+
+      secure_vector<uint8_t> pt(input.data(), input.data() + input.size());
+      dec->set_key(key);
+      dec->start(iv);
+      dec->finish(pt);
+
+      cout << dec->name() << " Dec: " << hex_encode(pt) << "\n";
+
+      return 0;
+  }
+#+end_src
+
+#+RESULTS:
+: AES-256/CBC/OneAndZeros Dec: 112233445566665544332211
 ** AES-CTR-128
 *** Encrypt
 #+HEADER: :var KEY  = "000102030405060708090A0B0C0D0E0F"
