@@ -2580,6 +2580,277 @@
 
 #+RESULTS:
 : CTR-BE(ARIA-128) Dec: 102030405060708090A0B0C0D0E0F000
+* DES
+** DES
+*** Encrypt
+#+HEADER: :var KEY  = "0001020304050607"
+#+HEADER: :var TEXT = "0011223344556677"
+#+begin_src C++
+  #include <botan/block_cipher.h>
+  #include <botan/hash.h>
+  #include <botan/hex.h>
+  #include <iostream>
+
+  using namespace std;
+  using namespace Botan;
+
+  int main ()
+  {
+      vector<uint8_t> k = hex_decode(KEY);
+      vector<uint8_t> block = hex_decode(TEXT);
+      unique_ptr<BlockCipher> cipher(BlockCipher::create("DES"));
+
+      cipher->set_key(k);
+
+      cipher->encrypt(block);
+      cout << cipher->name() << " Encrypt: " << hex_encode(block) << endl;
+
+      return 0;
+  }
+#+end_src
+
+#+RESULTS:
+: DES Encrypt: 3EF0A891CF8ED990
+
+*** Decrypt
+#+HEADER: :var KEY       = "0001020304050607"
+#+HEADER: :var ENCRYPTED = "3EF0A891CF8ED990"
+#+begin_src C++
+  #include <botan/block_cipher.h>
+  #include <botan/hash.h>
+  #include <botan/hex.h>
+  #include <iostream>
+
+  using namespace std;
+  using namespace Botan;
+
+  int main ()
+  {
+      vector<uint8_t> key = hex_decode(KEY);
+      vector<uint8_t> block = hex_decode(ENCRYPTED);
+      unique_ptr<BlockCipher> cipher(BlockCipher::create("DES"));
+
+      cipher->set_key(key);
+
+      cipher->decrypt(block);
+      cout << cipher->name() << " Decrypt: " << hex_encode(block) << endl;
+
+      return 0;
+  }
+#+end_src
+
+#+RESULTS:
+: DES Decrypt: 0011223344556677
+
+** DES-CBC
+*** Encrypt
+#+HEADER: :var KEY  = "0001020304050607"
+#+HEADER: :var TEXT = "0011223344556677"
+#+HEADER: :var IV   = "FFFFFFFFFFFFFFFF"
+#+begin_src C++
+  #include <botan/cipher_mode.h>
+  #include <botan/hex.h>
+  #include <iostream>
+
+  using namespace std;
+  using namespace Botan;
+
+  int main ()
+  {
+      const vector<uint8_t> input = hex_decode(TEXT);
+      const vector<uint8_t> key = hex_decode(KEY);
+      const vector<uint8_t> iv = hex_decode(IV);
+
+
+      unique_ptr<Cipher_Mode> enc = Cipher_Mode::create("DES/CBC/NoPadding", ENCRYPTION);
+
+      secure_vector<uint8_t> pt(input.data(), input.data()+input.size());
+
+      enc->set_key(key);
+      enc->start(iv);
+      enc->finish(pt);
+
+      string ret = hex_encode(pt);
+      cout << enc->name() <<  " Enc: " << ret << endl;
+
+      return 0;
+  }
+#+end_src
+
+#+RESULTS:
+: DES/CBC/NoPadding Enc: 1D906CB69C75537A
+*** Decrypt
+#+HEADER: :var KEY       = "0001020304050607"
+#+HEADER: :var ENCRYPTED = "1D906CB69C75537A"
+#+HEADER: :var IV        = "FFFFFFFFFFFFFFFF"
+#+begin_src C++
+  #include <botan/cipher_mode.h>
+  #include <botan/hex.h>
+  #include <iostream>
+
+  using namespace std;
+  using namespace Botan;
+
+  int main ()
+  {
+      vector<uint8_t> input = hex_decode(ENCRYPTED);
+      const vector<uint8_t> key = hex_decode(KEY);
+      const vector<uint8_t> iv = hex_decode(IV);
+
+      unique_ptr<Cipher_Mode> dec = Cipher_Mode::create("DES/CBC/NoPadding", DECRYPTION);
+
+      secure_vector<uint8_t> pt(input.data(), input.data() + input.size());
+      dec->set_key(key);
+      dec->start(iv);
+      dec->finish(pt);
+
+      cout << dec->name() << " Dec: " << hex_encode(pt) << "\n";
+
+      return 0;
+  }
+#+end_src
+
+#+RESULTS:
+: DES/CBC/NoPadding Dec: 0011223344556677
+** DES-CBC PKCS7 Padding
+*** Encrypt
+#+HEADER: :var KEY  = "0001020304050607"
+#+HEADER: :var TEXT = "0011223344556677"
+#+HEADER: :var IV   = "FFFFFFFFFFFFFFFF"
+#+begin_src C++
+  #include <botan/cipher_mode.h>
+  #include <botan/hex.h>
+  #include <iostream>
+
+  using namespace std;
+  using namespace Botan;
+
+  int main ()
+  {
+      const vector<uint8_t> input = hex_decode(TEXT);
+      const vector<uint8_t> key = hex_decode(KEY);
+      const vector<uint8_t> iv = hex_decode(IV);
+
+
+      unique_ptr<Cipher_Mode> enc = Cipher_Mode::create("DES/CBC/PKCS7", ENCRYPTION);
+
+      secure_vector<uint8_t> pt(input.data(), input.data()+input.size());
+
+      enc->set_key(key);
+      enc->start(iv);
+      enc->finish(pt);
+
+      string ret = hex_encode(pt);
+      cout << enc->name() <<  " Enc: " << ret << endl;
+
+      return 0;
+  }
+#+end_src
+
+#+RESULTS:
+: DES/CBC/PKCS7 Enc: 1D906CB69C75537AE0A782AC616A9763
+*** Decrypt
+#+HEADER: :var KEY       = "0001020304050607"
+#+HEADER: :var ENCRYPTED = "1D906CB69C75537AE0A782AC616A9763"
+#+HEADER: :var IV        = "FFFFFFFFFFFFFFFF"
+#+begin_src C++
+  #include <botan/cipher_mode.h>
+  #include <botan/hex.h>
+  #include <iostream>
+
+  using namespace std;
+  using namespace Botan;
+
+  int main ()
+  {
+      vector<uint8_t> input = hex_decode(ENCRYPTED);
+      const vector<uint8_t> key = hex_decode(KEY);
+      const vector<uint8_t> iv = hex_decode(IV);
+
+      unique_ptr<Cipher_Mode> dec = Cipher_Mode::create("DES/CBC/PKCS7", DECRYPTION);
+
+      secure_vector<uint8_t> pt(input.data(), input.data() + input.size());
+      dec->set_key(key);
+      dec->start(iv);
+      dec->finish(pt);
+
+      cout << dec->name() << " Dec: " << hex_encode(pt) << "\n";
+
+      return 0;
+  }
+#+end_src
+
+#+RESULTS:
+: DES/CBC/PKCS7 Dec: 0011223344556677
+** DES-CTR
+*** Encrypt
+#+HEADER: :var KEY  = "0001020304050607"
+#+HEADER: :var TEXT = "0011223344556677"
+#+HEADER: :var IV   = "FFFFFFFFFFFFFFFF"
+#+begin_src C++
+  #include <botan/cipher_mode.h>
+  #include <botan/hex.h>
+  #include <iostream>
+
+  using namespace std;
+  using namespace Botan;
+
+  int main ()
+  {
+      const vector<uint8_t> input = hex_decode(TEXT);
+      const vector<uint8_t> key = hex_decode(KEY);
+      const vector<uint8_t> iv = hex_decode(IV);
+
+      unique_ptr<Cipher_Mode> enc = Cipher_Mode::create("DES/CTR", ENCRYPTION);
+
+      secure_vector<uint8_t> pt(input.data(), input.data()+input.size());
+
+      enc->set_key(key);
+      enc->start(iv);
+      enc->finish(pt);
+
+      string ret = hex_encode(pt);
+      cout << enc->name() <<  " Enc: " << ret << endl;
+
+      return 0;
+  }
+#+end_src
+
+#+RESULTS:
+: CTR-BE(DES) Enc: 6B77DC07D92B9B3F
+*** Decrypt
+#+HEADER: :var KEY       = "0001020304050607"
+#+HEADER: :var ENCRYPTED = "6B77DC07D92B9B3F"
+#+HEADER: :var IV        = "FFFFFFFFFFFFFFFF"
+#+begin_src C++
+  #include <botan/cipher_mode.h>
+  #include <botan/hex.h>
+  #include <iostream>
+
+  using namespace std;
+  using namespace Botan;
+
+  int main ()
+  {
+      vector<uint8_t> input = hex_decode(ENCRYPTED);
+      const vector<uint8_t> key = hex_decode(KEY);
+      const vector<uint8_t> iv = hex_decode(IV);
+
+      unique_ptr<Cipher_Mode> dec = Cipher_Mode::create("DES/CTR", DECRYPTION);
+
+      secure_vector<uint8_t> pt(input.data(), input.data() + input.size());
+      dec->set_key(key);
+      dec->start(iv);
+      dec->finish(pt);
+
+      cout << dec->name() << " Dec: " << hex_encode(pt) << "\n";
+
+      return 0;
+  }
+#+end_src
+
+#+RESULTS:
+: CTR-BE(DES) Dec: 0011223344556677
 * ECDH
 ** Random key - Create sessionkey
 #+HEADER: :var TEXT        = "test msg"
