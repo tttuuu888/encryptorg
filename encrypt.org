@@ -1,5 +1,5 @@
 #+STARTUP: hideblocks
-#+PROPERTY: header-args :libs -I/usr/include/botan-2 -lbotan-2
+#+PROPERTY: header-args :libs -I/usr/include/botan-3 -lbotan-3 :flags -std=c++20
 * SHA-256
 ** Plain text input
 #+HEADER: :var TEXT = "abcd"
@@ -591,8 +591,7 @@
 #+HEADER: :var IV   = "112233445566778899AABBCC"
 #+HEADER: :var AAD  = "0102030405060708090A0B0C0D0E"
 #+begin_src C++
-  #include <botan/gcm.h>
-  #include <botan/aes.h>
+  #include <botan/aead.h>
   #include <botan/hash.h>
   #include <botan/hex.h>
   #include <iostream>
@@ -607,12 +606,12 @@
       const vector<uint8_t> aad = hex_decode(AAD);
       const vector<uint8_t> iv = hex_decode(IV);
 
-      unique_ptr<AEAD_Mode> enc = AEAD_Mode::create("AES-128/GCM", ENCRYPTION);
+      unique_ptr<AEAD_Mode> enc = AEAD_Mode::create("AES-128/GCM", Cipher_Dir::Encryption);
 
       secure_vector<uint8_t> pt(input.data(), input.data()+input.size());
 
       enc->set_key(key);
-      enc->set_ad(aad);
+      enc->set_associated_data(aad);
       enc->start(iv);
       enc->finish(pt);
 
@@ -638,8 +637,7 @@
 #+HEADER: :var IV        = "112233445566778899AABBCC"
 #+HEADER: :var AAD       = "0102030405060708090A0B0C0D0E"
 #+begin_src C++
-  #include <botan/gcm.h>
-  #include <botan/aes.h>
+  #include <botan/aead.h>
   #include <botan/hash.h>
   #include <botan/hex.h>
   #include <iostream>
@@ -657,10 +655,10 @@
       const vector<uint8_t> aad = hex_decode(AAD);
       const vector<uint8_t> iv = hex_decode(IV);
 
-      unique_ptr<AEAD_Mode> dec = AEAD_Mode::create("AES-128/GCM", DECRYPTION);
+      unique_ptr<AEAD_Mode> dec = AEAD_Mode::create("AES-128/GCM", Cipher_Dir::Decryption);
 
       dec->set_key(key);
-      dec->set_ad(aad);
+      dec->set_associated_data(aad);
       dec->start(iv);
       secure_vector<uint8_t> pt(input.data(), input.data() + input.size());
       dec->finish(pt);
@@ -681,10 +679,8 @@
 #+HEADER: :var IV   = "112233445566778899AABBCC"
 #+HEADER: :var AAD  = "0102030405060708090A0B0C0D0E"
 #+begin_src C++
-  #include <botan/ccm.h>
-  #include <botan/aes.h>
+  #include <botan/aead.h>
   #include <botan/auto_rng.h>
-  #include <botan/cipher_mode.h>
   #include <botan/hash.h>
   #include <botan/hex.h>
   #include <iostream>
@@ -699,12 +695,12 @@
       const vector<uint8_t> aad = hex_decode(AAD);
       const vector<uint8_t> iv = hex_decode(IV);
 
-      unique_ptr<AEAD_Mode> enc = AEAD_Mode::create("AES-192/GCM", ENCRYPTION);
+      unique_ptr<AEAD_Mode> enc = AEAD_Mode::create("AES-192/GCM", Cipher_Dir::Encryption);
 
       secure_vector<uint8_t> pt(input.data(), input.data()+input.size());
 
       enc->set_key(key);
-      enc->set_ad(aad);
+      enc->set_associated_data(aad);
       enc->start(iv);
       enc->finish(pt);
 
@@ -730,10 +726,8 @@
 #+HEADER: :var IV        = "112233445566778899AABBCC"
 #+HEADER: :var AAD       = "0102030405060708090A0B0C0D0E"
 #+begin_src C++
-  #include <botan/gcm.h>
-  #include <botan/aes.h>
+  #include <botan/aead.h>
   #include <botan/auto_rng.h>
-  #include <botan/cipher_mode.h>
   #include <botan/hash.h>
   #include <botan/hex.h>
   #include <iostream>
@@ -751,10 +745,10 @@
       const vector<uint8_t> aad = hex_decode(AAD);
       const vector<uint8_t> iv = hex_decode(IV);
 
-      unique_ptr<AEAD_Mode> dec = AEAD_Mode::create("AES-192/GCM", DECRYPTION);
+      unique_ptr<AEAD_Mode> dec = AEAD_Mode::create("AES-192/GCM", Cipher_Dir::Decryption);
 
       dec->set_key(key);
-      dec->set_ad(aad);
+      dec->set_associated_data(aad);
       dec->start(iv);
       secure_vector<uint8_t> pt(input.data(), input.data() + input.size());
       dec->finish(pt);
@@ -775,10 +769,8 @@
 #+HEADER: :var IV   = "112233445566778899AABBCC"
 #+HEADER: :var AAD  = "0102030405060708090A0B0C0D0E"
 #+begin_src C++
-  #include <botan/ccm.h>
-  #include <botan/aes.h>
+  #include <botan/aead.h>
   #include <botan/auto_rng.h>
-  #include <botan/cipher_mode.h>
   #include <botan/hash.h>
   #include <botan/hex.h>
   #include <iostream>
@@ -793,12 +785,12 @@
       const vector<uint8_t> aad = hex_decode(AAD);
       const vector<uint8_t> iv = hex_decode(IV);
 
-      unique_ptr<AEAD_Mode> enc = AEAD_Mode::create("AES-256/GCM", ENCRYPTION);
+      unique_ptr<AEAD_Mode> enc = AEAD_Mode::create("AES-256/GCM", Cipher_Dir::Encryption);
 
       secure_vector<uint8_t> pt(input.data(), input.data()+input.size());
 
       enc->set_key(key);
-      enc->set_ad(aad);
+      enc->set_associated_data(aad);
       enc->start(iv);
       enc->finish(pt);
 
@@ -824,10 +816,8 @@
 #+HEADER: :var IV        = "112233445566778899AABBCC"
 #+HEADER: :var AAD       = "0102030405060708090A0B0C0D0E"
 #+begin_src C++
-  #include <botan/gcm.h>
-  #include <botan/aes.h>
+  #include <botan/aead.h>
   #include <botan/auto_rng.h>
-  #include <botan/cipher_mode.h>
   #include <botan/hash.h>
   #include <botan/hex.h>
   #include <iostream>
@@ -845,10 +835,10 @@
       const vector<uint8_t> aad = hex_decode(AAD);
       const vector<uint8_t> iv = hex_decode(IV);
 
-      unique_ptr<AEAD_Mode> dec = AEAD_Mode::create("AES-256/GCM", DECRYPTION);
+      unique_ptr<AEAD_Mode> dec = AEAD_Mode::create("AES-256/GCM", Cipher_Dir::Decryption);
 
       dec->set_key(key);
-      dec->set_ad(aad);
+      dec->set_associated_data(aad);
       dec->start(iv);
       secure_vector<uint8_t> pt(input.data(), input.data() + input.size());
       dec->finish(pt);
@@ -868,10 +858,8 @@
 #+HEADER: :var IV   = "112233445566778899AABBCC"
 #+HEADER: :var AAD  = "0102030405060708090A0B0C0D0E"
 #+begin_src C++
-  #include <botan/ccm.h>
-  #include <botan/aes.h>
+  #include <botan/aead.h>
   #include <botan/auto_rng.h>
-  #include <botan/cipher_mode.h>
   #include <botan/hash.h>
   #include <botan/hex.h>
   #include <iostream>
@@ -886,12 +874,12 @@
       const vector<uint8_t> aad = hex_decode(AAD);
       const vector<uint8_t> iv = hex_decode(IV);
 
-      unique_ptr<AEAD_Mode> enc = AEAD_Mode::create("AES-256/GCM", ENCRYPTION);
+      unique_ptr<AEAD_Mode> enc = AEAD_Mode::create("AES-256/GCM", Cipher_Dir::Encryption);
 
       secure_vector<uint8_t> pt(input.data(), input.data()+input.length());
 
       enc->set_key(key);
-      enc->set_ad(aad);
+      enc->set_associated_data(aad);
       enc->start(iv);
       enc->finish(pt);
 
@@ -917,10 +905,8 @@
 #+HEADER: :var IV        = "112233445566778899AABBCC"
 #+HEADER: :var AAD       = "0102030405060708090A0B0C0D0E"
 #+begin_src C++
-  #include <botan/gcm.h>
-  #include <botan/aes.h>
+  #include <botan/aead.h>
   #include <botan/auto_rng.h>
-  #include <botan/cipher_mode.h>
   #include <botan/hash.h>
   #include <botan/hex.h>
   #include <iostream>
@@ -938,10 +924,10 @@
       const vector<uint8_t> aad = hex_decode(AAD);
       const vector<uint8_t> iv = hex_decode(IV);
 
-      unique_ptr<AEAD_Mode> dec = AEAD_Mode::create("AES-256/GCM", DECRYPTION);
+      unique_ptr<AEAD_Mode> dec = AEAD_Mode::create("AES-256/GCM", Cipher_Dir::Decryption);
 
       dec->set_key(key);
-      dec->set_ad(aad);
+      dec->set_associated_data(aad);
       dec->start(iv);
       secure_vector<uint8_t> pt(input.data(), input.data() + input.size());
       dec->finish(pt);
@@ -963,7 +949,6 @@
 #+HEADER: :var TEXT = "102030405060708090A0B0C0D0E0F000"
 #+begin_src C++
   #include <botan/cipher_mode.h>
-  #include <botan/aes.h>
   #include <botan/hash.h>
   #include <botan/hex.h>
   #include <iostream>
@@ -977,7 +962,7 @@
       const vector<uint8_t> key = hex_decode(KEY);
       const vector<uint8_t> iv = hex_decode(IV);
 
-      unique_ptr<Cipher_Mode> enc = Cipher_Mode::create("AES-128/CBC/NoPadding", ENCRYPTION);
+      unique_ptr<Cipher_Mode> enc = Cipher_Mode::create("AES-128/CBC/NoPadding", Cipher_Dir::Encryption);
       // cout << " default nonce lengh " << enc->default_nonce_length() << endl;
 
       secure_vector<uint8_t> pt(input.data(), input.data()+input.size());
@@ -1001,7 +986,6 @@
 #+HEADER: :var ENCRYPTED = "A28F5667E6CE191444647F5B2E570AE8"
 #+begin_src C++
   #include <botan/cipher_mode.h>
-  #include <botan/aes.h>
   #include <botan/hash.h>
   #include <botan/hex.h>
   #include <iostream>
@@ -1016,7 +1000,7 @@
       const vector<uint8_t> key = hex_decode(KEY);
       const vector<uint8_t> iv = hex_decode(IV);
 
-      unique_ptr<Cipher_Mode> dec = Cipher_Mode::create("AES-128/CBC/NoPadding", DECRYPTION);
+      unique_ptr<Cipher_Mode> dec = Cipher_Mode::create("AES-128/CBC/NoPadding", Cipher_Dir::Decryption);
 
       dec->set_key(key);
       dec->start(iv);
@@ -1037,7 +1021,7 @@
 #+HEADER: :var IV   = "112233445566778899AABBCCDDEEFF00"
 #+HEADER: :var TEXT = "102030405060708090A0B0C0D0E0F000"
 #+begin_src C++
-  #include <botan/cbc.h>
+  #include <botan/cipher_mode.h>
   #include <botan/hex.h>
   #include <iostream>
 
@@ -1050,7 +1034,7 @@
       const vector<uint8_t> key = hex_decode(KEY);
       const vector<uint8_t> iv = hex_decode(IV);
 
-      unique_ptr<Cipher_Mode> enc = Cipher_Mode::create("AES-128/CBC/PKCS7", ENCRYPTION);
+      unique_ptr<Cipher_Mode> enc = Cipher_Mode::create("AES-128/CBC/PKCS7", Cipher_Dir::Encryption);
 
       secure_vector<uint8_t> pt(input.data(), input.data()+input.size());
 
@@ -1072,7 +1056,7 @@
 #+HEADER: :var ENCRYPTED = "A28F5667E6CE191444647F5B2E570AE8644F7CE15636077CFB9ADD5CD87FC6C6"
 #+HEADER: :var IV        = "112233445566778899AABBCCDDEEFF00"
 #+begin_src C++
-  #include <botan/gcm.h>
+  #include <botan/cipher_mode.h>
   #include <botan/hex.h>
   #include <iostream>
 
@@ -1085,7 +1069,7 @@
       const vector<uint8_t> key = hex_decode(KEY);
       const vector<uint8_t> iv = hex_decode(IV);
 
-      unique_ptr<Cipher_Mode> dec = Cipher_Mode::create("AES-128/CBC/PKCS7", DECRYPTION);
+      unique_ptr<Cipher_Mode> dec = Cipher_Mode::create("AES-128/CBC/PKCS7", Cipher_Dir::Decryption);
 
       secure_vector<uint8_t> pt(input.data(), input.data() + input.size());
       dec->set_key(key);
@@ -1106,7 +1090,7 @@
 #+HEADER: :var IV   = "112233445566778899AABBCCDDEEFF00"
 #+HEADER: :var TEXT = "102030405060708090A0B0C0D0E0F000"
 #+begin_src C++
-  #include <botan/cbc.h>
+  #include <botan/cipher_mode.h>
   #include <botan/hex.h>
   #include <iostream>
 
@@ -1119,7 +1103,7 @@
       const vector<uint8_t> key = hex_decode(KEY);
       const vector<uint8_t> iv = hex_decode(IV);
 
-      unique_ptr<Cipher_Mode> enc = Cipher_Mode::create("AES-128/CBC/OneAndZeros", ENCRYPTION);
+      unique_ptr<Cipher_Mode> enc = Cipher_Mode::create("AES-128/CBC/OneAndZeros", Cipher_Dir::Encryption);
 
       secure_vector<uint8_t> pt(input.data(), input.data()+input.size());
 
@@ -1141,7 +1125,7 @@
 #+HEADER: :var ENCRYPTED = "A28F5667E6CE191444647F5B2E570AE8726BB1394D7F883A0A298EE1D9510E64"
 #+HEADER: :var IV        = "112233445566778899AABBCCDDEEFF00"
 #+begin_src C++
-  #include <botan/gcm.h>
+  #include <botan/cipher_mode.h>
   #include <botan/hex.h>
   #include <iostream>
 
@@ -1154,7 +1138,7 @@
       const vector<uint8_t> key = hex_decode(KEY);
       const vector<uint8_t> iv = hex_decode(IV);
 
-      unique_ptr<Cipher_Mode> dec = Cipher_Mode::create("AES-128/CBC/OneAndZeros", DECRYPTION);
+      unique_ptr<Cipher_Mode> dec = Cipher_Mode::create("AES-128/CBC/OneAndZeros", Cipher_Dir::Decryption);
 
       secure_vector<uint8_t> pt(input.data(), input.data() + input.size());
       dec->set_key(key);
@@ -1175,7 +1159,7 @@
 #+HEADER: :var TEXT = "102030405060708090A0B0C0D0E0F000"
 #+HEADER: :var IV   = "112233445566778899AABBCCDDEEFF00"
 #+begin_src C++
-  #include <botan/cbc.h>
+  #include <botan/cipher_mode.h>
   #include <botan/hex.h>
   #include <iostream>
 
@@ -1188,7 +1172,7 @@
       const vector<uint8_t> key = hex_decode(KEY);
       const vector<uint8_t> iv = hex_decode(IV);
 
-      unique_ptr<Cipher_Mode> enc = Cipher_Mode::create("AES-256/CBC/PKCS7", ENCRYPTION);
+      unique_ptr<Cipher_Mode> enc = Cipher_Mode::create("AES-256/CBC/PKCS7", Cipher_Dir::Encryption);
 
       secure_vector<uint8_t> pt(input.data(), input.data()+input.size());
 
@@ -1210,7 +1194,7 @@
 #+HEADER: :var ENCRYPTED = "19F01F6269952794B3714810E26BE3D5E6267DFE058BF54D4E377CBD3E434FD4"
 #+HEADER: :var IV        = "112233445566778899AABBCCDDEEFF00"
 #+begin_src C++
-  #include <botan/gcm.h>
+  #include <botan/cipher_mode.h>
   #include <botan/hex.h>
   #include <iostream>
 
@@ -1223,7 +1207,7 @@
       const vector<uint8_t> key = hex_decode(KEY);
       const vector<uint8_t> iv = hex_decode(IV);
 
-      unique_ptr<Cipher_Mode> dec = Cipher_Mode::create("AES-256/CBC/PKCS7", DECRYPTION);
+      unique_ptr<Cipher_Mode> dec = Cipher_Mode::create("AES-256/CBC/PKCS7", Cipher_Dir::Decryption);
 
       secure_vector<uint8_t> pt(input.data(), input.data() + input.size());
       dec->set_key(key);
@@ -1244,7 +1228,7 @@
 #+HEADER: :var TEXT = "112233445566665544332211"
 #+HEADER: :var IV   = "112233445566778899AABBCCDDEEFF00"
 #+begin_src C++
-  #include <botan/cbc.h>
+  #include <botan/cipher_mode.h>
   #include <botan/hex.h>
   #include <iostream>
 
@@ -1257,7 +1241,7 @@
       const vector<uint8_t> key = hex_decode(KEY);
       const vector<uint8_t> iv = hex_decode(IV);
 
-      unique_ptr<Cipher_Mode> enc = Cipher_Mode::create("AES-256/CBC/OneAndZeros", ENCRYPTION);
+      unique_ptr<Cipher_Mode> enc = Cipher_Mode::create("AES-256/CBC/OneAndZeros", Cipher_Dir::Encryption);
 
       secure_vector<uint8_t> pt(input.data(), input.data()+input.size());
 
@@ -1279,7 +1263,7 @@
 #+HEADER: :var ENCRYPTED = "7B1803081258477C997943AE6EDD290C"
 #+HEADER: :var IV        = "112233445566778899AABBCCDDEEFF00"
 #+begin_src C++
-  #include <botan/gcm.h>
+  #include <botan/cipher_mode.h>
   #include <botan/hex.h>
   #include <iostream>
 
@@ -1292,7 +1276,7 @@
       const vector<uint8_t> key = hex_decode(KEY);
       const vector<uint8_t> iv = hex_decode(IV);
 
-      unique_ptr<Cipher_Mode> dec = Cipher_Mode::create("AES-256/CBC/OneAndZeros", DECRYPTION);
+      unique_ptr<Cipher_Mode> dec = Cipher_Mode::create("AES-256/CBC/OneAndZeros", Cipher_Dir::Decryption);
 
       secure_vector<uint8_t> pt(input.data(), input.data() + input.size());
       dec->set_key(key);
@@ -1314,7 +1298,6 @@
 #+HEADER: :var TEXT = "000102030405060708090A0B0C0D0E0F000102030405060708090A0B0C0D0E0F"
 #+begin_src C++
   #include <botan/cipher_mode.h>
-  #include <botan/aes.h>
   #include <botan/hash.h>
   #include <botan/hex.h>
   #include <iostream>
@@ -1328,7 +1311,7 @@
       const vector<uint8_t> key = hex_decode(KEY);
       const vector<uint8_t> iv = hex_decode(IV);
 
-      unique_ptr<Cipher_Mode> enc = Cipher_Mode::create("AES-128/CTR", ENCRYPTION);
+      unique_ptr<Cipher_Mode> enc = Cipher_Mode::create("AES-128/CTR", Cipher_Dir::Encryption);
       // cout << " default nonce lengh " << enc->default_nonce_length() << endl;
 
       secure_vector<uint8_t> pt(input.data(), input.data()+input.size());
@@ -1352,7 +1335,6 @@
 #+HEADER: :var ENCRYPTED = "0DBFDF84A3810CE19DD7394598DE505F1E0ED42DFBBD7EB164BE5DA7F5CD5C23"
 #+begin_src C++
   #include <botan/cipher_mode.h>
-  #include <botan/aes.h>
   #include <botan/hash.h>
   #include <botan/hex.h>
   #include <iostream>
@@ -1367,7 +1349,7 @@
       const vector<uint8_t> key = hex_decode(KEY);
       const vector<uint8_t> iv = hex_decode(IV);
 
-      unique_ptr<Cipher_Mode> dec = Cipher_Mode::create("AES-128/CTR", DECRYPTION);
+      unique_ptr<Cipher_Mode> dec = Cipher_Mode::create("AES-128/CTR", Cipher_Dir::Decryption);
 
       dec->set_key(key);
       dec->start(iv);
@@ -1389,8 +1371,7 @@
 #+HEADER: :var NONCE = "FFFFFFFFFFFFFFFFFFFFFFFF"
 #+HEADER: :var AAD   = "0102030405060708090A0B0C0D0E"
 #+begin_src C++
-  #include <botan/gcm.h>
-  #include <botan/aes.h>
+  #include <botan/aead.h>
   #include <botan/hash.h>
   #include <botan/hex.h>
   #include <iostream>
@@ -1405,12 +1386,12 @@
       const vector<uint8_t> aad = hex_decode(AAD);
       const vector<uint8_t> nonce = hex_decode(NONCE);
 
-      unique_ptr<AEAD_Mode> enc = AEAD_Mode::create("AES-128/CCM", ENCRYPTION);
+      unique_ptr<AEAD_Mode> enc = AEAD_Mode::create("AES-128/CCM", Cipher_Dir::Encryption);
 
       secure_vector<uint8_t> pt(input.data(), input.data()+input.size());
 
       enc->set_key(key);
-      enc->set_ad(aad);
+      enc->set_associated_data(aad);
       enc->start(nonce);
       enc->finish(pt);
 
@@ -1436,8 +1417,7 @@
 #+HEADER: :var NONCE     = "FFFFFFFFFFFFFFFFFFFFFFFF"
 #+HEADER: :var AAD       = "0102030405060708090A0B0C0D0E"
 #+begin_src C++
-  #include <botan/gcm.h>
-  #include <botan/aes.h>
+  #include <botan/aead.h>
   #include <botan/hash.h>
   #include <botan/hex.h>
   #include <iostream>
@@ -1455,10 +1435,10 @@
       const vector<uint8_t> aad = hex_decode(AAD);
       const vector<uint8_t> nonce = hex_decode(NONCE);
 
-      unique_ptr<AEAD_Mode> dec = AEAD_Mode::create("AES-128/CCM", DECRYPTION);
+      unique_ptr<AEAD_Mode> dec = AEAD_Mode::create("AES-128/CCM", Cipher_Dir::Decryption);
 
       dec->set_key(key);
-      dec->set_ad(aad);
+      dec->set_associated_data(aad);
       dec->start(nonce);
       secure_vector<uint8_t> pt(input.data(), input.data() + input.size());
       dec->finish(pt);
@@ -1683,21 +1663,27 @@
   int keyWrapper(vector<uint8_t> &kek, vector<uint8_t> &key, vector<uint8_t> &wrappedKey, vector<uint8_t> &iv)
   {
       keyWrapperWithIv(kek, key, wrappedKey, iv);
+      return 0;
   }
   int keyWrapper(vector<uint8_t> &kek, vector<uint8_t> &key, vector<uint8_t> &wrappedKey)
   {
       keyWrapperWithIv(kek, key, wrappedKey, defaultIv);
+      return 0;
   }
 
   int keyUnwrapper(vector<uint8_t> &kek, vector<uint8_t> &wrappedKey, vector<uint8_t> &key, vector<uint8_t> iv)
   {
       keyUnwrapperWithiv(kek, wrappedKey, key, iv);
+      return 0;
   }
   int keyUnwrapper(vector<uint8_t> &kek, vector<uint8_t> &wrappedKey, vector<uint8_t> &key)
   {
       keyUnwrapperWithiv(kek, wrappedKey, key, defaultIv);
+      return 0;
   }
 #+end_src
+
++RESULTS: wrapper_functions
 
 *** Demo
 #+HEADER: :var KEK = "000102030405060708090A0B0C0D0E0F"
@@ -2037,7 +2023,7 @@
 #+HEADER: :var IV   = "112233445566778899AABBCC"
 #+HEADER: :var AAD  = "0102030405060708090A0B0C0D0E"
 #+begin_src C++
-  #include <botan/gcm.h>
+  #include <botan/aead.h>
   #include <botan/hex.h>
   #include <iostream>
 
@@ -2051,12 +2037,12 @@
       const vector<uint8_t> aad = hex_decode(AAD);
       const vector<uint8_t> iv = hex_decode(IV);
 
-      unique_ptr<AEAD_Mode> enc = AEAD_Mode::create("ARIA-128/GCM", ENCRYPTION);
+      unique_ptr<AEAD_Mode> enc = AEAD_Mode::create("ARIA-128/GCM", Cipher_Dir::Encryption);
 
       secure_vector<uint8_t> pt(input.data(), input.data()+input.size());
 
       enc->set_key(key);
-      enc->set_ad(aad);
+      enc->set_associated_data(aad);
       enc->start(iv);
       enc->finish(pt);
 
@@ -2082,7 +2068,7 @@
 #+HEADER: :var IV        = "112233445566778899AABBCC"
 #+HEADER: :var AAD       = "0102030405060708090A0B0C0D0E"
 #+begin_src C++
-  #include <botan/gcm.h>
+  #include <botan/aead.h>
   #include <botan/hex.h>
   #include <iostream>
 
@@ -2099,10 +2085,10 @@
       const vector<uint8_t> aad = hex_decode(AAD);
       const vector<uint8_t> iv = hex_decode(IV);
 
-      unique_ptr<AEAD_Mode> dec = AEAD_Mode::create("ARIA-128/GCM", DECRYPTION);
+      unique_ptr<AEAD_Mode> dec = AEAD_Mode::create("ARIA-128/GCM", Cipher_Dir::Decryption);
 
       dec->set_key(key);
-      dec->set_ad(aad);
+      dec->set_associated_data(aad);
       dec->start(iv);
       secure_vector<uint8_t> pt(input.data(), input.data() + input.size());
       dec->finish(pt);
@@ -2122,7 +2108,7 @@
 #+HEADER: :var IV   = "112233445566778899AABBCC"
 #+HEADER: :var AAD  = "0102030405060708090A0B0C0D0E"
 #+begin_src C++
-  #include <botan/gcm.h>
+  #include <botan/aead.h>
   #include <botan/hex.h>
   #include <iostream>
 
@@ -2136,12 +2122,12 @@
       const vector<uint8_t> aad = hex_decode(AAD);
       const vector<uint8_t> iv = hex_decode(IV);
 
-      unique_ptr<AEAD_Mode> enc = AEAD_Mode::create("ARIA-192/GCM", ENCRYPTION);
+      unique_ptr<AEAD_Mode> enc = AEAD_Mode::create("ARIA-192/GCM", Cipher_Dir::Encryption);
 
       secure_vector<uint8_t> pt(input.data(), input.data()+input.size());
 
       enc->set_key(key);
-      enc->set_ad(aad);
+      enc->set_associated_data(aad);
       enc->start(iv);
       enc->finish(pt);
 
@@ -2167,7 +2153,7 @@
 #+HEADER: :var IV        = "112233445566778899AABBCC"
 #+HEADER: :var AAD       = "0102030405060708090A0B0C0D0E"
 #+begin_src C++
-  #include <botan/gcm.h>
+  #include <botan/aead.h>
   #include <botan/hex.h>
   #include <iostream>
 
@@ -2184,10 +2170,10 @@
       const vector<uint8_t> aad = hex_decode(AAD);
       const vector<uint8_t> iv = hex_decode(IV);
 
-      unique_ptr<AEAD_Mode> dec = AEAD_Mode::create("ARIA-192/GCM", DECRYPTION);
+      unique_ptr<AEAD_Mode> dec = AEAD_Mode::create("ARIA-192/GCM", Cipher_Dir::Decryption);
 
       dec->set_key(key);
-      dec->set_ad(aad);
+      dec->set_associated_data(aad);
       dec->start(iv);
       secure_vector<uint8_t> pt(input.data(), input.data() + input.size());
       dec->finish(pt);
@@ -2208,7 +2194,7 @@
 #+HEADER: :var IV   = "112233445566778899AABBCC"
 #+HEADER: :var AAD  = "0102030405060708090A0B0C0D0E"
 #+begin_src C++
-  #include <botan/gcm.h>
+  #include <botan/aead.h>
   #include <botan/hex.h>
   #include <iostream>
 
@@ -2222,12 +2208,12 @@
       const vector<uint8_t> aad = hex_decode(AAD);
       const vector<uint8_t> iv = hex_decode(IV);
 
-      unique_ptr<AEAD_Mode> enc = AEAD_Mode::create("ARIA-256/GCM", ENCRYPTION);
+      unique_ptr<AEAD_Mode> enc = AEAD_Mode::create("ARIA-256/GCM", Cipher_Dir::Encryption);
 
       secure_vector<uint8_t> pt(input.data(), input.data()+input.size());
 
       enc->set_key(key);
-      enc->set_ad(aad);
+      enc->set_associated_data(aad);
       enc->start(iv);
       enc->finish(pt);
 
@@ -2253,7 +2239,7 @@
 #+HEADER: :var IV        = "112233445566778899AABBCC"
 #+HEADER: :var AAD       = "0102030405060708090A0B0C0D0E"
 #+begin_src C++
-  #include <botan/gcm.h>
+  #include <botan/aead.h>
   #include <botan/hex.h>
   #include <iostream>
 
@@ -2270,10 +2256,10 @@
       const vector<uint8_t> aad = hex_decode(AAD);
       const vector<uint8_t> iv = hex_decode(IV);
 
-      unique_ptr<AEAD_Mode> dec = AEAD_Mode::create("ARIA-256/GCM", DECRYPTION);
+      unique_ptr<AEAD_Mode> dec = AEAD_Mode::create("ARIA-256/GCM", Cipher_Dir::Decryption);
 
       dec->set_key(key);
-      dec->set_ad(aad);
+      dec->set_associated_data(aad);
       dec->start(iv);
       secure_vector<uint8_t> pt(input.data(), input.data() + input.size());
       dec->finish(pt);
@@ -2293,7 +2279,7 @@
 #+HEADER: :var IV   = "112233445566778899AABBCC"
 #+HEADER: :var AAD  = "0102030405060708090A0B0C0D0E"
 #+begin_src C++
-  #include <botan/gcm.h>
+  #include <botan/aead.h>
   #include <botan/hex.h>
   #include <iostream>
 
@@ -2307,12 +2293,12 @@
       const vector<uint8_t> aad = hex_decode(AAD);
       const vector<uint8_t> iv = hex_decode(IV);
 
-      unique_ptr<AEAD_Mode> enc = AEAD_Mode::create("ARIA-256/GCM", ENCRYPTION);
+      unique_ptr<AEAD_Mode> enc = AEAD_Mode::create("ARIA-256/GCM", Cipher_Dir::Encryption);
 
       secure_vector<uint8_t> pt(input.data(), input.data()+input.length());
 
       enc->set_key(key);
-      enc->set_ad(aad);
+      enc->set_associated_data(aad);
       enc->start(iv);
       enc->finish(pt);
 
@@ -2338,7 +2324,7 @@
 #+HEADER: :var IV        = "112233445566778899AABBCC"
 #+HEADER: :var AAD       = "0102030405060708090A0B0C0D0E"
 #+begin_src C++
-  #include <botan/gcm.h>
+  #include <botan/aead.h>
   #include <botan/hex.h>
   #include <iostream>
 
@@ -2355,10 +2341,10 @@
       const vector<uint8_t> aad = hex_decode(AAD);
       const vector<uint8_t> iv = hex_decode(IV);
 
-      unique_ptr<AEAD_Mode> dec = AEAD_Mode::create("ARIA-256/GCM", DECRYPTION);
+      unique_ptr<AEAD_Mode> dec = AEAD_Mode::create("ARIA-256/GCM", Cipher_Dir::Decryption);
 
       dec->set_key(key);
-      dec->set_ad(aad);
+      dec->set_associated_data(aad);
       dec->start(iv);
       secure_vector<uint8_t> pt(input.data(), input.data() + input.size());
       dec->finish(pt);
@@ -2379,7 +2365,7 @@
 #+HEADER: :var TEXT = "102030405060708090A0B0C0D0E0F000"
 #+HEADER: :var IV   = "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
 #+begin_src C++
-  #include <botan/cbc.h>
+  #include <botan/cipher_mode.h>
   #include <botan/hex.h>
   #include <iostream>
 
@@ -2392,7 +2378,7 @@
       const vector<uint8_t> key = hex_decode(KEY);
       const vector<uint8_t> iv = hex_decode(IV);
 
-      unique_ptr<Cipher_Mode> enc = Cipher_Mode::create("ARIA-128/CBC/NoPadding", ENCRYPTION);
+      unique_ptr<Cipher_Mode> enc = Cipher_Mode::create("ARIA-128/CBC/NoPadding", Cipher_Dir::Encryption);
 
       secure_vector<uint8_t> pt(input.data(), input.data()+input.size());
 
@@ -2414,7 +2400,7 @@
 #+HEADER: :var ENCRYPTED = "57AC63C3A8F0121A4D54B0A8021EEBC9"
 #+HEADER: :var IV        = "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
 #+begin_src C++
-  #include <botan/gcm.h>
+  #include <botan/cipher_mode.h>
   #include <botan/hex.h>
   #include <iostream>
 
@@ -2427,7 +2413,7 @@
       const vector<uint8_t> key = hex_decode(KEY);
       const vector<uint8_t> iv = hex_decode(IV);
 
-      unique_ptr<Cipher_Mode> dec = Cipher_Mode::create("ARIA-128/CBC/NoPadding", DECRYPTION);
+      unique_ptr<Cipher_Mode> dec = Cipher_Mode::create("ARIA-128/CBC/NoPadding", Cipher_Dir::Decryption);
 
       secure_vector<uint8_t> pt(input.data(), input.data() + input.size());
       dec->set_key(key);
@@ -2448,7 +2434,7 @@
 #+HEADER: :var TEXT = "102030405060708090A0B0C0D0E0F000"
 #+HEADER: :var IV   = "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
 #+begin_src C++
-  #include <botan/cbc.h>
+  #include <botan/cipher_mode.h>
   #include <botan/hex.h>
   #include <iostream>
 
@@ -2461,7 +2447,7 @@
       const vector<uint8_t> key = hex_decode(KEY);
       const vector<uint8_t> iv = hex_decode(IV);
 
-      unique_ptr<Cipher_Mode> enc = Cipher_Mode::create("ARIA-128/CBC/PKCS7", ENCRYPTION);
+      unique_ptr<Cipher_Mode> enc = Cipher_Mode::create("ARIA-128/CBC/PKCS7", Cipher_Dir::Encryption);
 
       secure_vector<uint8_t> pt(input.data(), input.data()+input.size());
 
@@ -2483,7 +2469,7 @@
 #+HEADER: :var ENCRYPTED = "57AC63C3A8F0121A4D54B0A8021EEBC9A1E16B15F52E223EBCBCB515A68E1342"
 #+HEADER: :var IV        = "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
 #+begin_src C++
-  #include <botan/gcm.h>
+  #include <botan/cipher_mode.h>
   #include <botan/hex.h>
   #include <iostream>
 
@@ -2496,7 +2482,7 @@
       const vector<uint8_t> key = hex_decode(KEY);
       const vector<uint8_t> iv = hex_decode(IV);
 
-      unique_ptr<Cipher_Mode> dec = Cipher_Mode::create("ARIA-128/CBC/PKCS7", DECRYPTION);
+      unique_ptr<Cipher_Mode> dec = Cipher_Mode::create("ARIA-128/CBC/PKCS7", Cipher_Dir::Decryption);
 
       secure_vector<uint8_t> pt(input.data(), input.data() + input.size());
       dec->set_key(key);
@@ -2517,7 +2503,7 @@
 #+HEADER: :var TEXT = "102030405060708090A0B0C0D0E0F000"
 #+HEADER: :var IV   = "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
 #+begin_src C++
-  #include <botan/cbc.h>
+  #include <botan/cipher_mode.h>
   #include <botan/hex.h>
   #include <iostream>
 
@@ -2530,7 +2516,7 @@
       const vector<uint8_t> key = hex_decode(KEY);
       const vector<uint8_t> iv = hex_decode(IV);
 
-      unique_ptr<Cipher_Mode> enc = Cipher_Mode::create("ARIA-128/CTR", ENCRYPTION);
+      unique_ptr<Cipher_Mode> enc = Cipher_Mode::create("ARIA-128/CTR", Cipher_Dir::Encryption);
 
       secure_vector<uint8_t> pt(input.data(), input.data()+input.size());
 
@@ -2552,7 +2538,7 @@
 #+HEADER: :var ENCRYPTED = "787C57CE043D0BB74EAC829782E5563C"
 #+HEADER: :var IV        = "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
 #+begin_src C++
-  #include <botan/gcm.h>
+  #include <botan/cipher_mode.h>
   #include <botan/hex.h>
   #include <iostream>
 
@@ -2565,7 +2551,7 @@
       const vector<uint8_t> key = hex_decode(KEY);
       const vector<uint8_t> iv = hex_decode(IV);
 
-      unique_ptr<Cipher_Mode> dec = Cipher_Mode::create("ARIA-128/CTR", DECRYPTION);
+      unique_ptr<Cipher_Mode> dec = Cipher_Mode::create("ARIA-128/CTR", Cipher_Dir::Decryption);
 
       secure_vector<uint8_t> pt(input.data(), input.data() + input.size());
       dec->set_key(key);
@@ -2662,7 +2648,7 @@
       const vector<uint8_t> iv = hex_decode(IV);
 
 
-      unique_ptr<Cipher_Mode> enc = Cipher_Mode::create("DES/CBC/NoPadding", ENCRYPTION);
+      unique_ptr<Cipher_Mode> enc = Cipher_Mode::create("DES/CBC/NoPadding", Cipher_Dir::Encryption);
 
       secure_vector<uint8_t> pt(input.data(), input.data()+input.size());
 
@@ -2697,7 +2683,7 @@
       const vector<uint8_t> key = hex_decode(KEY);
       const vector<uint8_t> iv = hex_decode(IV);
 
-      unique_ptr<Cipher_Mode> dec = Cipher_Mode::create("DES/CBC/NoPadding", DECRYPTION);
+      unique_ptr<Cipher_Mode> dec = Cipher_Mode::create("DES/CBC/NoPadding", Cipher_Dir::Decryption);
 
       secure_vector<uint8_t> pt(input.data(), input.data() + input.size());
       dec->set_key(key);
@@ -2732,7 +2718,7 @@
       const vector<uint8_t> iv = hex_decode(IV);
 
 
-      unique_ptr<Cipher_Mode> enc = Cipher_Mode::create("DES/CBC/PKCS7", ENCRYPTION);
+      unique_ptr<Cipher_Mode> enc = Cipher_Mode::create("DES/CBC/PKCS7", Cipher_Dir::Encryption);
 
       secure_vector<uint8_t> pt(input.data(), input.data()+input.size());
 
@@ -2767,7 +2753,7 @@
       const vector<uint8_t> key = hex_decode(KEY);
       const vector<uint8_t> iv = hex_decode(IV);
 
-      unique_ptr<Cipher_Mode> dec = Cipher_Mode::create("DES/CBC/PKCS7", DECRYPTION);
+      unique_ptr<Cipher_Mode> dec = Cipher_Mode::create("DES/CBC/PKCS7", Cipher_Dir::Decryption);
 
       secure_vector<uint8_t> pt(input.data(), input.data() + input.size());
       dec->set_key(key);
@@ -2801,7 +2787,7 @@
       const vector<uint8_t> key = hex_decode(KEY);
       const vector<uint8_t> iv = hex_decode(IV);
 
-      unique_ptr<Cipher_Mode> enc = Cipher_Mode::create("DES/CTR", ENCRYPTION);
+      unique_ptr<Cipher_Mode> enc = Cipher_Mode::create("DES/CTR", Cipher_Dir::Encryption);
 
       secure_vector<uint8_t> pt(input.data(), input.data()+input.size());
 
@@ -2836,7 +2822,7 @@
       const vector<uint8_t> key = hex_decode(KEY);
       const vector<uint8_t> iv = hex_decode(IV);
 
-      unique_ptr<Cipher_Mode> dec = Cipher_Mode::create("DES/CTR", DECRYPTION);
+      unique_ptr<Cipher_Mode> dec = Cipher_Mode::create("DES/CTR", Cipher_Dir::Decryption);
 
       secure_vector<uint8_t> pt(input.data(), input.data() + input.size());
       dec->set_key(key);
@@ -2906,11 +2892,11 @@
 #+end_src
 
 #+RESULTS:
-| private_keyA: | 272381629D174EAD2F3939F2FFDCFCFDAFB5885E789EBA30969127F6B6E8F8E2                                                                   |
-| public_keyA:  | 048D05F3D3FC92A06F97B3D6861D0C9425483E16E2F6AA2729F99211FF1B364E10A46B47A96EF995785245FC5302EF45A0D5EF1486B9865603969118D455AFBB53 |
-| private_keyB: | EBF6E5A05A4AC0D1D2B2A629BF808B50B51DB7ED5E7CBAE968783C925FCC679D                                                                   |
-| public_keyB:  | 04EFB6C4A48C69D85C6831922530536FE4500D16F90A454960465CDBF178E4728373D41625F3906A69107463FDD0FA03A1C4E1EB619968DEFEB41D1338B65049D4 |
-| agreed_key:   | 3C027AF77D256133E465CE56ABC1CF31B3D428FD5FE528A4481BCF5D295DAA69                                                                   |
+| private_keyA: | 0xACA21AE8FD3A288CAA893322B8E2221BE1DFF721354330C260DD2707190FE7AB                                                                 |
+| public_keyA:  | 045A40FAC77D2D58DA2CFB35C4CA0D2428819768598AD8429B310CC0508AEB2F8517770B9AFDB058DF222AA00FDC6A0AFE083A916F00B12C38DE0435BA7E1FC0A7 |
+| private_keyB: | 0xC9183A2AD2641A1836792126CCA0E538D5BF04ABFAB818B2865E2E4343FBFD62                                                                 |
+| public_keyB:  | 04CE15F7B90CB38C6ADDD9881C8525D32BA7ED0CEF247E13F8CFFA14820166EF48A72C1C0FD9524D64F07F3CD7D62DDE79A89AE36EE735D67D4548EA4650C14122 |
+| agreed_key:   | D490E43A975B4EFF8F031D648A5ADC98AC3D568997022F313BE1BE3A9641936D                                                                   |
 
 ** Existing key(Hex) - Create sessionkey (Public key can be omitted)
 #+HEADER: :var A_PRIVATE_KEY = "272381629D174EAD2F3939F2FFDCFCFDAFB5885E789EBA30969127F6B6E8F8E2"
@@ -2992,9 +2978,9 @@
 #+end_src
 
 #+RESULTS:
-| private_keyA: | 272381629D174EAD2F3939F2FFDCFCFDAFB5885E789EBA30969127F6B6E8F8E2                                                                   |
+| private_keyA: | 0x272381629D174EAD2F3939F2FFDCFCFDAFB5885E789EBA30969127F6B6E8F8E2                                                                 |
 | public_keyA:  | 048D05F3D3FC92A06F97B3D6861D0C9425483E16E2F6AA2729F99211FF1B364E10A46B47A96EF995785245FC5302EF45A0D5EF1486B9865603969118D455AFBB53 |
-| private_keyB: | EBF6E5A05A4AC0D1D2B2A629BF808B50B51DB7ED5E7CBAE968783C925FCC679D                                                                   |
+| private_keyB: | 0xEBF6E5A05A4AC0D1D2B2A629BF808B50B51DB7ED5E7CBAE968783C925FCC679D                                                                 |
 | public_keyB:  | 04EFB6C4A48C69D85C6831922530536FE4500D16F90A454960465CDBF178E4728373D41625F3906A69107463FDD0FA03A1C4E1EB619968DEFEB41D1338B65049D4 |
 | agreed_key:   | 3C027AF77D256133E465CE56ABC1CF31B3D428FD5FE528A4481BCF5D295DAA69                                                                   |
 
@@ -3078,12 +3064,12 @@
 #+end_src
 
 #+RESULTS:
-| private_keyA:       | 272381629D174EAD2F3939F2FFDCFCFDAFB5885E789EBA30969127F6B6E8F8E2                                                                   |
+| private_keyA:       |                                                                 0x272381629D174EAD2F3939F2FFDCFCFDAFB5885E789EBA30969127F6B6E8F8E2 |
 | public_keyA:        | 048D05F3D3FC92A06F97B3D6861D0C9425483E16E2F6AA2729F99211FF1B364E10A46B47A96EF995785245FC5302EF45A0D5EF1486B9865603969118D455AFBB53 |
-| private_keyB:       | EBF6E5A05A4AC0D1D2B2A629BF808B50B51DB7ED5E7CBAE968783C925FCC679D                                                                   |
+| private_keyB:       |                                                                 0xEBF6E5A05A4AC0D1D2B2A629BF808B50B51DB7ED5E7CBAE968783C925FCC679D |
 | public_keyB:        | 04EFB6C4A48C69D85C6831922530536FE4500D16F90A454960465CDBF178E4728373D41625F3906A69107463FDD0FA03A1C4E1EB619968DEFEB41D1338B65049D4 |
-| agreed_key(Hex):    | 3C027AF77D256133E465CE56ABC1CF31B3D428FD5FE528A4481BCF5D295DAA69                                                                   |
-| agreed_key(BigInt): | 27143153294466088880496358460888297068895292863519913920482132860624216894057                                                      |
+| agreed_key(Hex):    |                                                                   3C027AF77D256133E465CE56ABC1CF31B3D428FD5FE528A4481BCF5D295DAA69 |
+| agreed_key(BigInt): |                                                      27143153294466088880496358460888297068895292863519913920482132860624216894057 |
 
 ** Existing key(Hex) - Create sessionkey with PriKey A, PubKey B
 #+HEADER: :var A_PRIVATE_KEY = "272381629D174EAD2F3939F2FFDCFCFDAFB5885E789EBA30969127F6B6E8F8E2"
@@ -3138,7 +3124,7 @@
 #+end_src
 
 #+RESULTS:
-| private_keyA: | 272381629D174EAD2F3939F2FFDCFCFDAFB5885E789EBA30969127F6B6E8F8E2                                                                   |
+| private_keyA: | 0x272381629D174EAD2F3939F2FFDCFCFDAFB5885E789EBA30969127F6B6E8F8E2                                                                 |
 | public_keyA:  | 048D05F3D3FC92A06F97B3D6861D0C9425483E16E2F6AA2729F99211FF1B364E10A46B47A96EF995785245FC5302EF45A0D5EF1486B9865603969118D455AFBB53 |
 | agreed_key:   | 3C027AF77D256133E465CE56ABC1CF31B3D428FD5FE528A4481BCF5D295DAA69                                                                   |
 
@@ -3193,10 +3179,10 @@
 #+end_src
 
 #+RESULTS:
-| prikey:    | 6BBAB443BF3ED32282068E803D7F7F5FBC686C5032953F9B5BA0E610A7B82AAE                                                                   |
-| pubkey1:   | 0480AE09B3BE4CF77E50B2B03DECE1FAAF763E431F8FE718D5E642F747D96BB52B702C98A99AA66DC6528B5B2E4BA3008DB6C062CCA03577C48D2D3686E78D536B |
-| pubkey2:   | 0480AE09B3BE4CF77E50B2B03DECE1FAAF763E431F8FE718D5E642F747D96BB52B702C98A99AA66DC6528B5B2E4BA3008DB6C062CCA03577C48D2D3686E78D536B |
-| Signature: | AFB70D8B741F7D44610C17C85612EE1990AFC7EE0E6D056E5F88E4FE18C922DF29E0825C1E7B60B451C519B92EFE7E1B8E1DD4A1D222165DBC74D05CD06B77D1   |
+| prikey:    | 0xC071BB13BB66C0E580CA4BFDC5D2D190CB1A35CD866FA83EA3C0E4CD3B36CD78                                                                 |
+| pubkey1:   | 0412FB82F4E35B6DF039AC98C6279DC5989634D42E78F6AE18B7154FF453EAFEEAAF7221DE49909ADFF97D4861C8E054085E4E38F87A9E6C40064148314E1477B4 |
+| pubkey2:   | 0412FB82F4E35B6DF039AC98C6279DC5989634D42E78F6AE18B7154FF453EAFEEAAF7221DE49909ADFF97D4861C8E054085E4E38F87A9E6C40064148314E1477B4 |
+| Signature: | 02C02C80C107FD0D819EE491D0954DE0B1DDD675E9C4E3DB0645AE287BA720F94DB8B899AFD04C6C408F756C5D4E40A9587CBDEB73EE811B42C35C9267E7D071   |
 | signature  | valid                                                                                                                              |
 
 ** Random key - Create signature - TEXT input
@@ -3241,9 +3227,9 @@
 #+end_src
 
 #+RESULTS:
-| private_key: | DBC868EF66949314FC040180FC6F1A9867466028364140361FF770733B23EF76                                                                   |
-| public_key:  | 04A9A712C7B56F3C878F230C6F6F31564D11D29F9E30A146E7F99904F6FD743708662C3B989201E6437F9DC261AF500F68C93EF2382F93F9B842E679F5297C1907 |
-| Signature:   | 631A5DBE42230344B4AD5F0B53B0B6661970AD403CAF09BD56BEB8D9E24EAF8258761C4EBE258CE8B182DC6B28F540C05D72FFA909A09AC0166A2AAB1C85C238   |
+| private_key: | 0xC2B11482D38E016008AD263D2DAE7F1668BFFD67ACDEC0AFC7D6130661E23CF6                                                                 |
+| public_key:  | 04D6C3E70D5D2BBE2839BD9D96542654F6324B0891588DB7B70C83CE48B2E23A089B9CEE5F1EF0ED18377D89363306772BF264FC0485134F376E88F115798E072E |
+| Signature:   | F88B35DED195278ADD3320AABA51E16DD98FD0882F34445CD8C44582EABCBF7E7ABACD583487F0E06CFAC099B04CA0B5FB9FE192A45EAD4EB63368125622E1AD   |
 
 ** Random key - Create signature - HEX input
 #+HEADER: :var TEXT        = "010203040506"
@@ -3286,9 +3272,9 @@
 #+end_src
 
 #+RESULTS:
-| private_key: | 20EA2E851163D5DCA706FB775EC3A374C089153D4D1715FA77E360B029D6CF3F                                                                   |
-| public_key:  | 04C5753966CF021EBF8A58B044C1122D40665728DE3AB709C340A69F5526D9DD9A10A4EA3DD751145AB015B8593666B30A33FBB8F7303C24FF357C33A6E9518D82 |
-| Signature:   | 7DEA65D1F0D03C379D7457441CDA5125380486DF74B8BE3CFBE258D9E61CB790F55C3ED4CC4720E62A5F7B5119A47421D01A05FF478875641EE369D021E42E61   |
+| private_key: | 0x6266287DDD8AB54C0E034B19A66E69A3E8939901C1E671E6FF3C658942F2478A                                                                 |
+| public_key:  | 04F87F7C48974225E1C6BC49EB924B9652675FD0B362CB6F0B94CAE0846DA6E57DFE0D9C3AC1F4E32BDDECC50163FE4481E4D244B918365DCC1E88B3EF95A604DD |
+| Signature:   | 09463A3AC192096F0769B1F5EC42B0E56155D36AD77FC9BF5FB8649522D4BAA3C4CAA5C3C67FE4874034F501F5A87C1A0B68E57413045BEE8970B7FE90CD95EB   |
 
 ** Existing key - Create signature TEXT input
 #+HEADER: :var TEXT        = "test msg"
@@ -3336,7 +3322,7 @@
 #+end_src
 
 #+RESULTS:
-: Signature: AC2527E96694CC18BD9A89D1F101CEC292887BC79EE1BD5D9E20CC0E67DFB26C5E486FE5535811368C7D88490399C91D478321A04F05E9C9E265EC1416A41185
+: Signature: BE5F8ACA879F2AA8D2385134AAD44792EAF84CE997A8C4328608BE75447999DB7934DB668DFE49DD4E5CCF7F13CDB304D148B510A4FBA6F3D8B00DAD97FB806E
 
 ** Existing key - Create signature HEX input
 #+HEADER: :var TEXT        = "000102030405060708090A0B0C0D0E0F000102030405060708090A0B0C0D0E0F"
@@ -3382,7 +3368,7 @@
 #+end_src
 
 #+RESULTS:
-: Signature: 999ED1ADF893B7E4812D43AF1205FCAC40B55FAEA44EEAF0B040F4596D7DA0AD3767A2381D288EFB5F2B7684F9A385710653B2C1E094B9C9DEF8A3898F734C78
+: Signature: 77A75FD1894F4113B5904CE6FBB8819B658856266FFCE3417C799C8E9163D87865CC4D12F3504181C53BAE8C1D497764E47080B73C72764D5F6E717C48E08896
 
 ** Existing key - Create signature HEX input with only private key
 #+HEADER: :var TEXT        = "000102030405060708090A0B0C0D0E0F000102030405060708090A0B0C0D0E0F"
@@ -3420,7 +3406,7 @@
 #+end_src
 
 #+RESULTS:
-: Signature: D86EE38D4A45145A6083382EB61245F10A5A3F144746EAA2612BF6C6743A01F553D0C9EB9B3F484901F15FD59116A0F23F2FAC5F3954C11FFAA9E6454E6E0BFF
+: Signature: 77A75FD1894F4113B5904CE6FBB8819B658856266FFCE3417C799C8E9163D87865CC4D12F3504181C53BAE8C1D497764E47080B73C72764D5F6E717C48E08896
 
 ** Existing key - Signature check - TEXT input
 #+HEADER: :var TEXT        = "test msg"
@@ -3724,21 +3710,21 @@ hood. (Binary rep of i = 01 case only)
   #include <botan/hex.h>
   #include <botan/bigint.h>
   #include <iostream>
-  
+
   using namespace std;
   using namespace Botan;
-  
+
   int main()
   {
       std::string text("testmsg");
       std::vector<uint8_t> data(text.data(),text.data()+text.length());
-  
+
       Botan::AutoSeeded_RNG rng;
-  
+
       // Generate RSA keypair
       Botan::RSA_PrivateKey prikey(rng, 2048);
       Botan::RSA_PublicKey pubkey(prikey);
-  
+
       secure_vector<uint8_t> prik = prikey.private_key_bits();
       cout << "prikey: " << hex_encode(prik) << endl;
       BigInt pric = prikey.get_c();
@@ -3757,51 +3743,51 @@ hood. (Binary rep of i = 01 case only)
       cout << "prikey_n: " << prin.to_hex_string() << endl;
       cout << "prikey_p: " << prip.to_hex_string() << endl;
       cout << "prikey_q: " << priq.to_hex_string() << endl;
-  
+
       // // Public key generated from private key
       vector<uint8_t> pubk = pubkey.public_key_bits();
       cout << "pubkey1: " << hex_encode(pubk) << endl;
-  
+
       // // Pubic key value from private key
       vector<uint8_t> pubk2 = prikey.public_key_bits() ;
       cout << "pubkey2: " << hex_encode(pubk2) << endl;
-  
+
       BigInt pube = pubkey.get_e();
       BigInt pubn = pubkey.get_n();
       cout << "pubkey_e: " << pube.to_hex_string() << endl;
       cout << "pubkey_n: " << pubn.to_hex_string() << endl;
-  
+
       // // sign data
-      Botan::PK_Signer signer(prikey, rng, "EMSA1(SHA-256)");
+      Botan::PK_Signer signer(prikey, rng, "PSS(SHA-256)");
       signer.update(data);
       std::vector<uint8_t> signature = signer.signature(rng);
       std::cout << "Signature: " << Botan::hex_encode(signature) << endl;
-  
+
       // // verify signature
-      Botan::PK_Verifier verifier(pubkey, "EMSA1(SHA-256)");
+      Botan::PK_Verifier verifier(pubkey, "PSS(SHA-256)");
       verifier.update(data);
       std::cout << "signature " << (verifier.check_signature(signature)? "valid" : "invalid");
-  
+
       return 0;
   }
 #+end_src
 
 #+RESULTS:
-| prikey:    | 308204A30201000282010100BECD09417771C1688F0FC4211DF3AFF5C615C2FFD47BDC25671D84A0BFC0A4DD151BA8F2D3416E336D3AA32F02952D06F102E04C4246CE76E0CBF9AA5433C82076FD7E900D8BF2F6255FD1539ECD7821DBE4976E91A316B4DC27FFA3F20C3270E6CB82F838404FD86A393A998D44BDDB1A03BB1960649E9E555949E1ADDAB3CC2216356B9DE4225E37F8D1471FD70134352E1509AEB7C4EE3FF9AE747ECB3BD2A5D11AAA67ADBCB4A08E3490F99C98AB06D961FBE219D1DD55B0A8F32A0E510DDCCC648D4F95D3FB6251248FA2D6F89748B4CC1AB06A76781EF03B9AB559FBA3E4B0C5C853FB349D5C7FBA8F54D05CD76D56BB22F4326F316E1AC49BDE87B2ED0203010001028201000A5E376ACA8C10ABB71C6EF6B2BB377C56417FF969693A9F00B1B2AF8E83F021806062A7A151ACA49842A7B3EA02C3B1DD1E60245CB49ECB086FA5173BA09DB71FE829FCB773BBA5E30588293057AF77BD8C782B1EB85B4744305B3CA42E43FE6D18317B7E09069DB6B5F9E876ABFDDA1E59860CFCB733045D146F46976D2B386C374C4AFF1CF0A41C20BABC6B558925AFEEC14206576DD43AADA6EDD454D8F9EC88283B9659501C319E73BE681EC14968096895C154FC405ED93F94BCC704EF4092DEFA957A6013F87EC6452C1BD8213014E090953FC52E2ECA0C26A4A3920FE0A179B5144A1F85C1AB29B9557CA31C53AA02E982938AC3A7A6F963FCB3FAF902818100E59E29CDC32B5186392D4A2339FBCBD47049D3A1BA3E2EE35361D8B0AECE2ACB7250F6B9454AF59F4346E669D07CAD1D77E80B2C7767B5324EA1C30390D928745A79AEAE50094CD337A45C68A3FAA46ACEFE842C99B7AD8A81990F6CD5A60D09B81C4BEF45A4A197F557F83C3806CC9B3B38454B6EAA65EEFDA2BF76CE58555502818100D4B922F0A78FFC21FFD9525481464CE1E498D5A6053A39AD5D91975EC27188A9360BEFFCCF4B4ACFDF052E5AA3D6A87DA16E31C2805EA5CC803191D981092F8D8EC014595971A394998A2B0D4061ED7BE0047B2FD2A24AD8725AD3353D3A49D3F0104160DD5EBA9101F27B6DAD3DF9555A8C424C83DB37EAA7EB31CE5869E7390281800590538AFCD3ABE208B8A4373E4C6F9FF22897CC2F6B1A4FBFD17B22ACD9AA07CBF952412300B1FAEDF265DAE28662DB77F05374FC5FB2F0491F7A4E37D04B3EA682944CFCFB7CB51180160D230C0BB7DAD427F7BCB1CAAEB47D34F67A26CFE21067FF1F091CF81D6A807B2F5A5C2FD1031A55F381F6F7095773FE17AEE04D110281805448F2C625AE50396C754040C964006C74B5F5D92D330FCD5848AA905A3CBFE843C8E112EB53AAD5C848F63FE5B0D4DBCA4DAE1BA1DF5E9433AAF05E1CD975E501CDAB826785364A57B7BE2D26F8662F71E874A2D33388B250451A707ACD10999001F0D59F80BC2D5E77245EA588EBB4DD06BBF2334075DC5D223C7EC4DB594902818100804F41182E6085F28B70228DE9759FC809945412434C1CF4478C0EC5659D7FB590DBCEE64DEA14C8E5F66E6CF2A766AFF92316BEB7629622C1C45B3B4C62AE88EB921905BDFD44077600566F637BA3DD8BBA864338C276ACA80D25FA93FCD376660A2AC99B1C771AF3814D982FFB2A994FB029E19939DE92E141EF877620968C |
-| prikey_c:  | 804F41182E6085F28B70228DE9759FC809945412434C1CF4478C0EC5659D7FB590DBCEE64DEA14C8E5F66E6CF2A766AFF92316BEB7629622C1C45B3B4C62AE88EB921905BDFD44077600566F637BA3DD8BBA864338C276ACA80D25FA93FCD376660A2AC99B1C771AF3814D982FFB2A994FB029E19939DE92E141EF877620968C                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| prikey_d:  | 0A5E376ACA8C10ABB71C6EF6B2BB377C56417FF969693A9F00B1B2AF8E83F021806062A7A151ACA49842A7B3EA02C3B1DD1E60245CB49ECB086FA5173BA09DB71FE829FCB773BBA5E30588293057AF77BD8C782B1EB85B4744305B3CA42E43FE6D18317B7E09069DB6B5F9E876ABFDDA1E59860CFCB733045D146F46976D2B386C374C4AFF1CF0A41C20BABC6B558925AFEEC14206576DD43AADA6EDD454D8F9EC88283B9659501C319E73BE681EC14968096895C154FC405ED93F94BCC704EF4092DEFA957A6013F87EC6452C1BD8213014E090953FC52E2ECA0C26A4A3920FE0A179B5144A1F85C1AB29B9557CA31C53AA02E982938AC3A7A6F963FCB3FAF9                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| prikey_d1: | 0590538AFCD3ABE208B8A4373E4C6F9FF22897CC2F6B1A4FBFD17B22ACD9AA07CBF952412300B1FAEDF265DAE28662DB77F05374FC5FB2F0491F7A4E37D04B3EA682944CFCFB7CB51180160D230C0BB7DAD427F7BCB1CAAEB47D34F67A26CFE21067FF1F091CF81D6A807B2F5A5C2FD1031A55F381F6F7095773FE17AEE04D11                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| prikey_d2: | 5448F2C625AE50396C754040C964006C74B5F5D92D330FCD5848AA905A3CBFE843C8E112EB53AAD5C848F63FE5B0D4DBCA4DAE1BA1DF5E9433AAF05E1CD975E501CDAB826785364A57B7BE2D26F8662F71E874A2D33388B250451A707ACD10999001F0D59F80BC2D5E77245EA588EBB4DD06BBF2334075DC5D223C7EC4DB5949                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| prikey_e:  | 10001                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| prikey_n:  | BECD09417771C1688F0FC4211DF3AFF5C615C2FFD47BDC25671D84A0BFC0A4DD151BA8F2D3416E336D3AA32F02952D06F102E04C4246CE76E0CBF9AA5433C82076FD7E900D8BF2F6255FD1539ECD7821DBE4976E91A316B4DC27FFA3F20C3270E6CB82F838404FD86A393A998D44BDDB1A03BB1960649E9E555949E1ADDAB3CC2216356B9DE4225E37F8D1471FD70134352E1509AEB7C4EE3FF9AE747ECB3BD2A5D11AAA67ADBCB4A08E3490F99C98AB06D961FBE219D1DD55B0A8F32A0E510DDCCC648D4F95D3FB6251248FA2D6F89748B4CC1AB06A76781EF03B9AB559FBA3E4B0C5C853FB349D5C7FBA8F54D05CD76D56BB22F4326F316E1AC49BDE87B2ED                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| prikey_p:  | E59E29CDC32B5186392D4A2339FBCBD47049D3A1BA3E2EE35361D8B0AECE2ACB7250F6B9454AF59F4346E669D07CAD1D77E80B2C7767B5324EA1C30390D928745A79AEAE50094CD337A45C68A3FAA46ACEFE842C99B7AD8A81990F6CD5A60D09B81C4BEF45A4A197F557F83C3806CC9B3B38454B6EAA65EEFDA2BF76CE585555                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| prikey_q:  | D4B922F0A78FFC21FFD9525481464CE1E498D5A6053A39AD5D91975EC27188A9360BEFFCCF4B4ACFDF052E5AA3D6A87DA16E31C2805EA5CC803191D981092F8D8EC014595971A394998A2B0D4061ED7BE0047B2FD2A24AD8725AD3353D3A49D3F0104160DD5EBA9101F27B6DAD3DF9555A8C424C83DB37EAA7EB31CE5869E739                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| pubkey1:   | 3082010A0282010100BECD09417771C1688F0FC4211DF3AFF5C615C2FFD47BDC25671D84A0BFC0A4DD151BA8F2D3416E336D3AA32F02952D06F102E04C4246CE76E0CBF9AA5433C82076FD7E900D8BF2F6255FD1539ECD7821DBE4976E91A316B4DC27FFA3F20C3270E6CB82F838404FD86A393A998D44BDDB1A03BB1960649E9E555949E1ADDAB3CC2216356B9DE4225E37F8D1471FD70134352E1509AEB7C4EE3FF9AE747ECB3BD2A5D11AAA67ADBCB4A08E3490F99C98AB06D961FBE219D1DD55B0A8F32A0E510DDCCC648D4F95D3FB6251248FA2D6F89748B4CC1AB06A76781EF03B9AB559FBA3E4B0C5C853FB349D5C7FBA8F54D05CD76D56BB22F4326F316E1AC49BDE87B2ED0203010001                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| pubkey2:   | 3082010A0282010100BECD09417771C1688F0FC4211DF3AFF5C615C2FFD47BDC25671D84A0BFC0A4DD151BA8F2D3416E336D3AA32F02952D06F102E04C4246CE76E0CBF9AA5433C82076FD7E900D8BF2F6255FD1539ECD7821DBE4976E91A316B4DC27FFA3F20C3270E6CB82F838404FD86A393A998D44BDDB1A03BB1960649E9E555949E1ADDAB3CC2216356B9DE4225E37F8D1471FD70134352E1509AEB7C4EE3FF9AE747ECB3BD2A5D11AAA67ADBCB4A08E3490F99C98AB06D961FBE219D1DD55B0A8F32A0E510DDCCC648D4F95D3FB6251248FA2D6F89748B4CC1AB06A76781EF03B9AB559FBA3E4B0C5C853FB349D5C7FBA8F54D05CD76D56BB22F4326F316E1AC49BDE87B2ED0203010001                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| pubkey_e:  | 10001                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| pubkey_n:  | BECD09417771C1688F0FC4211DF3AFF5C615C2FFD47BDC25671D84A0BFC0A4DD151BA8F2D3416E336D3AA32F02952D06F102E04C4246CE76E0CBF9AA5433C82076FD7E900D8BF2F6255FD1539ECD7821DBE4976E91A316B4DC27FFA3F20C3270E6CB82F838404FD86A393A998D44BDDB1A03BB1960649E9E555949E1ADDAB3CC2216356B9DE4225E37F8D1471FD70134352E1509AEB7C4EE3FF9AE747ECB3BD2A5D11AAA67ADBCB4A08E3490F99C98AB06D961FBE219D1DD55B0A8F32A0E510DDCCC648D4F95D3FB6251248FA2D6F89748B4CC1AB06A76781EF03B9AB559FBA3E4B0C5C853FB349D5C7FBA8F54D05CD76D56BB22F4326F316E1AC49BDE87B2ED                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| Signature: | B27148E1CCC7CA851AF31C3BC1D439076EE914EC1497ED42BA58FD16481420A9DD5C0C1A4F796AA104084FB59080D39B00FAE2B6968E0420BD5FBAF843D5B43BF4AF5C1C91EBEF788B78EF15C5192EEC7A9F6A70FEF48D8E3DE0476B91F0CAD421DAB810964634414F7C8D1E5D18BB03CE4C54BF20B39137116CFDAFCB1676D761B9C1F10CE3994CB520854A55757C4F53FA7789481D8B564C52B0FD4882C7188DEE7D7883DEFC03E97BFD071E06D5308D8C437EE89626AC7F22CE899F995EA6E7C8C485F199107BCC591FE593258CD5802D5D2A647A3C500B69D78F96D4D5E62F04166E49F8ED718091D05358D88252FDFD0F9AA1D27FF78716A78B7FA5ECD8                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| signature  | valid                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| prikey:    | 308204A30201000282010100A71E7E805B30F9CB10D2385A5676E63F1B403E4C0FF885E0D22765B6F241696C6E2CC98031EACA158B9A097DE763F0B0611BC5A7CF009DEEC27D3F00063C3DB4F8810F7868F4C77F5C52A88432CA3A7E4BDDFBA4B44855387FC0816AEB615C762F3B0B0FBAB99DCFABC2A8C0EFAA24C9FA038B9E841B23B83D081367DAFBFAF0D236483379B17481C16256B5D74FCA24E1523F5CF8D711E1A8E1E31671A23D793E8F652F8C54301534D78D3CCC2CCCA33EF35B3739C7A68AEBF628EC4616133D31008371F7F758AAD812037D09D41062817424A29D5CEEDE12E2BB369AD97EB60CEBEB9600CB5E87B47A50EC2CFD6EE11C5593DA98A46E9068AED5E42AF8DA550203010001028201004E80BF18C97D80A198B5BF7E0426D732A6B8EF6AA887EC4FB7388589C253E2D36A0FC4D9E0D8F373DA7F91DCE050AC941611C72FF447CC688758F13AB033252379269B1F4B624CC2719A6C89A918211109CF6D71A9B45EBFEB17015439DCA2E3EB7CD74DDCBF6BB7CD6DE3FAB9BA598CBD52640822F362BC9D82C926DC91C8870C4BD1158856AEE6E0BD5ED5605F6530F7A907D1E7D38367EA5AC2A6E6331D0155DB1B66545113E08038BDF9F145E0282D11C99751328DD43B4B3C1E41C85AE8B9D458ACCC25BAAB2C94454A60C53E6FBAB09B84CC69F5047BC71223486A46A8EC5ED278E8482BE0691AE526F3313E45610E5777E584F97A05B7FA89D8A262D302818100D03693DD74D8BA926DF85F7964910C7258FACADCB48A2E90FDA93AC012F263D9717385138999DB037D41B3745374D9F48CBE14DF5E36764B5756F459F127AA53C6624722064658CC2A277E024302386649904EB2DADE5B1ACED42C88DD6A45E11BAE28ABC591B14B2FB6FA4B12E18BB38595272146C2E7174FDEDC45CFC232C302818100CD79766603BF441E6FCC13A934CEE6DF8CE2D875936C8A13A9D4C64F45032BB53D6FC0B6E1FF98732BC80AC3BDF7DEDFCC41CD07B7C2DFBD0CACAE7858A8EF7DA71049C848EAEE81F66535FD508118F37B5293B63DC4587E6902CDCECB478A10B5E2F8021852F57F91457574DF61EE175EFB31ED2C0125285E0F821FF41B3D07028180057A2A119D4D463B2BE168C18CBFB4101DFF1AEF0B60C730D13B6E6C371361450B12FAE134B1736D78120E6274FF91EC38F7971CF9217DA325BD07D885DB81438AE872EE9633AB8A53618E9308A83A4B968BD1462B33C639C24F1A8CCF2648884F6E196BCB5AB5CB408A13B37DDFA90923EE74850F9378F8C80518CE4D54D279028181008245C32254B7DC696BBA38B0EBF14E0168229ED894BA9924746599C1C2608B42A28C0AE4288F53C999758015B088C9FE9C530FBA17F0EEC7BE94711D8E20B58EB5F026C75C2BCF4208C50CA0E97CA024270928EBBF67902FBD4670D3EEA011D21C6FA58C367DCA76B1D516EE1D7ECA6478ECCC2FB1D99C0466F6702AF02AA0DB028180454D8EB3D591DDB34E3A1FEDCF7023016D74F64657F2AA6B59B96430BCC6AF9D066DFAACD1734877630096F902D4344F4BC45AA76F7D9B8731EABF8612D5E379F76C825D94B57A5DD4B7A1071D86D75DD6A3A0FFF55DD2CEF2D882FBACEB86B873F9D08FFF7EE9FE3CC804FF28B80CF9C0680480500173687B88C4DAC8D1F77E |
+| prikey_c:  | 0x454D8EB3D591DDB34E3A1FEDCF7023016D74F64657F2AA6B59B96430BCC6AF9D066DFAACD1734877630096F902D4344F4BC45AA76F7D9B8731EABF8612D5E379F76C825D94B57A5DD4B7A1071D86D75DD6A3A0FFF55DD2CEF2D882FBACEB86B873F9D08FFF7EE9FE3CC804FF28B80CF9C0680480500173687B88C4DAC8D1F77E |
+| prikey_d:  | 0x4E80BF18C97D80A198B5BF7E0426D732A6B8EF6AA887EC4FB7388589C253E2D36A0FC4D9E0D8F373DA7F91DCE050AC941611C72FF447CC688758F13AB033252379269B1F4B624CC2719A6C89A918211109CF6D71A9B45EBFEB17015439DCA2E3EB7CD74DDCBF6BB7CD6DE3FAB9BA598CBD52640822F362BC9D82C926DC91C8870C4BD1158856AEE6E0BD5ED5605F6530F7A907D1E7D38367EA5AC2A6E6331D0155DB1B66545113E08038BDF9F145E0282D11C99751328DD43B4B3C1E41C85AE8B9D458ACCC25BAAB2C94454A60C53E6FBAB09B84CC69F5047BC71223486A46A8EC5ED278E8482BE0691AE526F3313E45610E5777E584F97A05B7FA89D8A262D3 |
+| prikey_d1: | 0x057A2A119D4D463B2BE168C18CBFB4101DFF1AEF0B60C730D13B6E6C371361450B12FAE134B1736D78120E6274FF91EC38F7971CF9217DA325BD07D885DB81438AE872EE9633AB8A53618E9308A83A4B968BD1462B33C639C24F1A8CCF2648884F6E196BCB5AB5CB408A13B37DDFA90923EE74850F9378F8C80518CE4D54D279 |
+| prikey_d2: | 0x8245C32254B7DC696BBA38B0EBF14E0168229ED894BA9924746599C1C2608B42A28C0AE4288F53C999758015B088C9FE9C530FBA17F0EEC7BE94711D8E20B58EB5F026C75C2BCF4208C50CA0E97CA024270928EBBF67902FBD4670D3EEA011D21C6FA58C367DCA76B1D516EE1D7ECA6478ECCC2FB1D99C0466F6702AF02AA0DB |
+| prikey_e:  |                                                                                           0x010001 |
+| prikey_n:  | 0xA71E7E805B30F9CB10D2385A5676E63F1B403E4C0FF885E0D22765B6F241696C6E2CC98031EACA158B9A097DE763F0B0611BC5A7CF009DEEC27D3F00063C3DB4F8810F7868F4C77F5C52A88432CA3A7E4BDDFBA4B44855387FC0816AEB615C762F3B0B0FBAB99DCFABC2A8C0EFAA24C9FA038B9E841B23B83D081367DAFBFAF0D236483379B17481C16256B5D74FCA24E1523F5CF8D711E1A8E1E31671A23D793E8F652F8C54301534D78D3CCC2CCCA33EF35B3739C7A68AEBF628EC4616133D31008371F7F758AAD812037D09D41062817424A29D5CEEDE12E2BB369AD97EB60CEBEB9600CB5E87B47A50EC2CFD6EE11C5593DA98A46E9068AED5E42AF8DA55 |
+| prikey_p:  | 0xD03693DD74D8BA926DF85F7964910C7258FACADCB48A2E90FDA93AC012F263D9717385138999DB037D41B3745374D9F48CBE14DF5E36764B5756F459F127AA53C6624722064658CC2A277E024302386649904EB2DADE5B1ACED42C88DD6A45E11BAE28ABC591B14B2FB6FA4B12E18BB38595272146C2E7174FDEDC45CFC232C3 |
+| prikey_q:  | 0xCD79766603BF441E6FCC13A934CEE6DF8CE2D875936C8A13A9D4C64F45032BB53D6FC0B6E1FF98732BC80AC3BDF7DEDFCC41CD07B7C2DFBD0CACAE7858A8EF7DA71049C848EAEE81F66535FD508118F37B5293B63DC4587E6902CDCECB478A10B5E2F8021852F57F91457574DF61EE175EFB31ED2C0125285E0F821FF41B3D07 |
+| pubkey1:   | 3082010A0282010100A71E7E805B30F9CB10D2385A5676E63F1B403E4C0FF885E0D22765B6F241696C6E2CC98031EACA158B9A097DE763F0B0611BC5A7CF009DEEC27D3F00063C3DB4F8810F7868F4C77F5C52A88432CA3A7E4BDDFBA4B44855387FC0816AEB615C762F3B0B0FBAB99DCFABC2A8C0EFAA24C9FA038B9E841B23B83D081367DAFBFAF0D236483379B17481C16256B5D74FCA24E1523F5CF8D711E1A8E1E31671A23D793E8F652F8C54301534D78D3CCC2CCCA33EF35B3739C7A68AEBF628EC4616133D31008371F7F758AAD812037D09D41062817424A29D5CEEDE12E2BB369AD97EB60CEBEB9600CB5E87B47A50EC2CFD6EE11C5593DA98A46E9068AED5E42AF8DA550203010001 |
+| pubkey2:   | 3082010A0282010100A71E7E805B30F9CB10D2385A5676E63F1B403E4C0FF885E0D22765B6F241696C6E2CC98031EACA158B9A097DE763F0B0611BC5A7CF009DEEC27D3F00063C3DB4F8810F7868F4C77F5C52A88432CA3A7E4BDDFBA4B44855387FC0816AEB615C762F3B0B0FBAB99DCFABC2A8C0EFAA24C9FA038B9E841B23B83D081367DAFBFAF0D236483379B17481C16256B5D74FCA24E1523F5CF8D711E1A8E1E31671A23D793E8F652F8C54301534D78D3CCC2CCCA33EF35B3739C7A68AEBF628EC4616133D31008371F7F758AAD812037D09D41062817424A29D5CEEDE12E2BB369AD97EB60CEBEB9600CB5E87B47A50EC2CFD6EE11C5593DA98A46E9068AED5E42AF8DA550203010001 |
+| pubkey_e:  |                                                                                           0x010001 |
+| pubkey_n:  | 0xA71E7E805B30F9CB10D2385A5676E63F1B403E4C0FF885E0D22765B6F241696C6E2CC98031EACA158B9A097DE763F0B0611BC5A7CF009DEEC27D3F00063C3DB4F8810F7868F4C77F5C52A88432CA3A7E4BDDFBA4B44855387FC0816AEB615C762F3B0B0FBAB99DCFABC2A8C0EFAA24C9FA038B9E841B23B83D081367DAFBFAF0D236483379B17481C16256B5D74FCA24E1523F5CF8D711E1A8E1E31671A23D793E8F652F8C54301534D78D3CCC2CCCA33EF35B3739C7A68AEBF628EC4616133D31008371F7F758AAD812037D09D41062817424A29D5CEEDE12E2BB369AD97EB60CEBEB9600CB5E87B47A50EC2CFD6EE11C5593DA98A46E9068AED5E42AF8DA55 |
+| Signature: | 377286DC4C02832208FD6B3717BC3D8714AD155CECD44E026BB4E3CA9BD349DBB83EC1A62160B966057D324407725099C223EB74F369A57757E4E81923F78292BBC5BD8BE82F78E48C190EAA7A6D77FE373B384F0FFECA7A91B9DBCA1AACC084DB8523A69F1F688B5162DABBEA30A077F5061E30BC07FC30E3B0D9A85559BEB409B8994C8401A0D83DDCAF127028259950186AEAC961241C450C8A59FE023F94518208EF144AD11F5229654F8FE4BE2899E55822CAD426273A01E1780B3D507A9853DB5A9742A207C98C5A6FE739CBCA24EEDB4CAF0D0B6C18F0D7759E8930254F3F45DEC483E9C5ACB33E616A7BDB6F85EA05D71C043A67DF4B3F30B4B64DE1 |
+| signature  |                                                                                              valid |
 
 ** Encrypt
 #+HEADER: :var HEX_M = "000102030405060708090A0B0C0D0E0F"
@@ -3837,7 +3823,7 @@ hood. (Binary rep of i = 01 case only)
       Botan::RSA_PublicKey pubkey(n, e);
   
       //encrypt with pk
-      Botan::PK_Encryptor_EME enc(pubkey, rng, "EME1(SHA-256)");
+      Botan::PK_Encryptor_EME enc(pubkey, rng, "OAEP(SHA-256)");
       std::vector<uint8_t> ct = enc.encrypt(hexM, rng);
   
       cout << "Enc: " << hex_encode(ct) << endl;
@@ -3847,10 +3833,10 @@ hood. (Binary rep of i = 01 case only)
 #+end_src
 
 #+RESULTS:
-: Enc: 0E2A669D5DFE2261B6459FE573B6FABAF6E7CAFA1D016FD80FBB602B986FC8AB4EF85CBEB3433F5859CA0177E6B78DF7A646A36CDCB9873DFDFEBC767B5772833621B1CB902AB9A0205C389463FE6D092CBE5888C334E5E9BB609321B4D50732C13065338E4DD244183402A0A00AACC31D3885BC5D0AE553C5DE3A8BEE3558AE239801F1E319C2EFE430B6247FEB07363734403CA8637FAC714FC9499A3A060E63B7631826A93034E2D50954307F43A33885446B1ED0EE94667D90EE3EB4A7FA7AB79A968E7F546735BA0373BF21E34C3F048D2FA782DF503F550D55E955BC0387C967B2C8356934B695270D40B2C0DB9C0EF269F62F5A94ACF4B5D85E4947F7
+: Enc: 93A8D54451E83FB53D4FBFCD16DF835AB9E39C227EC229BC65D24ED4AA1777E2C60A2DD8784EC8D2C341DA15FE7898800B6EEFEF07E6E4FF2250908A9694968182B7C849631F6D1F101ACC5F8308A62EE6E3AFE39A1CE235F2C6FE82490681150CEE9E4F7C90ECCC442D05AB1F43F0414D5C1FBFF8D5C66F6D2DEB3D711F5C827EBBB01266E3B84E9DD451FF4E5AF9BD005A6F62B96184D95756CC94A7B117300A4354034DEDFA65D130405975DADF06EC188DD60D8EEE33ECD2C55428D973C2DEDE259B254EF941193FF0F4327AB056A2B685CA4F0889A9B090703A74039BA29989D25200D0E6796B377021728582BB4BD7E342753B42F5392CCD78B590B0A9
 
 ** Decrypt
-#+HEADER: :var ENC_M = "0E2A669D5DFE2261B6459FE573B6FABAF6E7CAFA1D016FD80FBB602B986FC8AB4EF85CBEB3433F5859CA0177E6B78DF7A646A36CDCB9873DFDFEBC767B5772833621B1CB902AB9A0205C389463FE6D092CBE5888C334E5E9BB609321B4D50732C13065338E4DD244183402A0A00AACC31D3885BC5D0AE553C5DE3A8BEE3558AE239801F1E319C2EFE430B6247FEB07363734403CA8637FAC714FC9499A3A060E63B7631826A93034E2D50954307F43A33885446B1ED0EE94667D90EE3EB4A7FA7AB79A968E7F546735BA0373BF21E34C3F048D2FA782DF503F550D55E955BC0387C967B2C8356934B695270D40B2C0DB9C0EF269F62F5A94ACF4B5D85E4947F7"
+#+HEADER: :var ENC_M = "93A8D54451E83FB53D4FBFCD16DF835AB9E39C227EC229BC65D24ED4AA1777E2C60A2DD8784EC8D2C341DA15FE7898800B6EEFEF07E6E4FF2250908A9694968182B7C849631F6D1F101ACC5F8308A62EE6E3AFE39A1CE235F2C6FE82490681150CEE9E4F7C90ECCC442D05AB1F43F0414D5C1FBFF8D5C66F6D2DEB3D711F5C827EBBB01266E3B84E9DD451FF4E5AF9BD005A6F62B96184D95756CC94A7B117300A4354034DEDFA65D130405975DADF06EC188DD60D8EEE33ECD2C55428D973C2DEDE259B254EF941193FF0F4327AB056A2B685CA4F0889A9B090703A74039BA29989D25200D0E6796B377021728582BB4BD7E342753B42F5392CCD78B590B0A9"
 #+HEADER: :var VAL_E = "010001"
 #+HEADER: :var VAL_P = "E59E29CDC32B5186392D4A2339FBCBD47049D3A1BA3E2EE35361D8B0AECE2ACB7250F6B9454AF59F4346E669D07CAD1D77E80B2C7767B5324EA1C30390D928745A79AEAE50094CD337A45C68A3FAA46ACEFE842C99B7AD8A81990F6CD5A60D09B81C4BEF45A4A197F557F83C3806CC9B3B38454B6EAA65EEFDA2BF76CE585555"
 #+HEADER: :var VAL_Q = "D4B922F0A78FFC21FFD9525481464CE1E498D5A6053A39AD5D91975EC27188A9360BEFFCCF4B4ACFDF052E5AA3D6A87DA16E31C2805EA5CC803191D981092F8D8EC014595971A394998A2B0D4061ED7BE0047B2FD2A24AD8725AD3353D3A49D3F0104160DD5EBA9101F27B6DAD3DF9555A8C424C83DB37EAA7EB31CE5869E739"
@@ -3883,7 +3869,7 @@ hood. (Binary rep of i = 01 case only)
       BigInt prid = prikey.get_d();
   
       //encrypt with pk
-      Botan::PK_Decryptor_EME dec(prikey, rng, "EME1(SHA-256)");
+      Botan::PK_Decryptor_EME dec(prikey, rng, "OAEP(SHA-256)");
       secure_vector<uint8_t> pt = dec.decrypt(hexM);
   
       cout << "Dec: " << hex_encode(pt) << endl;
@@ -3929,7 +3915,7 @@ hood. (Binary rep of i = 01 case only)
       BigInt prid = prikey.get_d();
   
       // // sign data
-      Botan::PK_Signer signer(prikey, rng, "EMSA1(SHA-256)");
+      Botan::PK_Signer signer(prikey, rng, "PSS(SHA-256)");
       signer.update(hexM);
       std::vector<uint8_t> signature = signer.signature(rng);
       std::cout << "Signature: " << Botan::hex_encode(signature) << endl;
@@ -3939,10 +3925,10 @@ hood. (Binary rep of i = 01 case only)
 #+end_src
 
 #+RESULTS:
-: Signature: 12EBA52F3A05A42E14C131B031A6212A0E1B69A4DF226703E431CED99527A9E09373695343646ED93F3881A4A54896B609A626A4DA2291C97B079A3A748528192E76D0EF6E18C6FE73454A12CE06095608B3521A125454768344EB16FAF2C5048C2083EA987BF5F521642576A7B7E705BF3BB71E6813D139D8401B81EC1116D9AB6371D997834F5673658B5E2A42B96E6CB3F057C912FED5D72891EC1DF1B495CDCCE58F56F60EF4AF3678F478694902C359E8F09101EF1FC0DD9E7C82DA38C1BC86C7A3BCCFE285675BEF55BBCD8244BC6C563D4A1D84674B4E5B92903B7717E7AE8656BDAB01A48A7301702598CDE92C662897E03946E2E5AE035CCD19C245
+: Signature: B38E9F45CC125796DE43E671144FB648146E23DD4444E24F37957A6798571D23605E423E1BF538F8DE3E93A049BD147E88CEE689A65A813ABEDCB307FAFCD6E82B766C4E3619E74D58A4ADE8CAF305B365B5B4EA751315EB2D3FD907D8E2B37BEDBB449A6E24E44D48E7E776E6003CE395530C30B0DC47BC8402EF4821BE5E5BCE67545F891F216A62F89E2CBF040112F611C5190E927A960BBCD64E3C6F8C7FE90D0E4A9C4FE6A8F22A810864245BFEBF45062FCB678ADF53563E66105B67EE589A7412BE8D4011D9523D5DECBB8659D23B862A47C583BE8985A82DCF40CAD42DE0E1AD8E385C61EAAD2113819F61DB966390800727409EED2824F5E3C21194
 
 ** Verify
-#+HEADER: :var SIGN  = "12EBA52F3A05A42E14C131B031A6212A0E1B69A4DF226703E431CED99527A9E09373695343646ED93F3881A4A54896B609A626A4DA2291C97B079A3A748528192E76D0EF6E18C6FE73454A12CE06095608B3521A125454768344EB16FAF2C5048C2083EA987BF5F521642576A7B7E705BF3BB71E6813D139D8401B81EC1116D9AB6371D997834F5673658B5E2A42B96E6CB3F057C912FED5D72891EC1DF1B495CDCCE58F56F60EF4AF3678F478694902C359E8F09101EF1FC0DD9E7C82DA38C1BC86C7A3BCCFE285675BEF55BBCD8244BC6C563D4A1D84674B4E5B92903B7717E7AE8656BDAB01A48A7301702598CDE92C662897E03946E2E5AE035CCD19C245"
+#+HEADER: :var SIGN  = "B38E9F45CC125796DE43E671144FB648146E23DD4444E24F37957A6798571D23605E423E1BF538F8DE3E93A049BD147E88CEE689A65A813ABEDCB307FAFCD6E82B766C4E3619E74D58A4ADE8CAF305B365B5B4EA751315EB2D3FD907D8E2B37BEDBB449A6E24E44D48E7E776E6003CE395530C30B0DC47BC8402EF4821BE5E5BCE67545F891F216A62F89E2CBF040112F611C5190E927A960BBCD64E3C6F8C7FE90D0E4A9C4FE6A8F22A810864245BFEBF45062FCB678ADF53563E66105B67EE589A7412BE8D4011D9523D5DECBB8659D23B862A47C583BE8985A82DCF40CAD42DE0E1AD8E385C61EAAD2113819F61DB966390800727409EED2824F5E3C21194"
 #+HEADER: :var HEX_M = "000102030405060708090A0B0C0D0E0F"
 #+HEADER: :var VAL_E = "010001"
 #+HEADER: :var VAL_P = "E59E29CDC32B5186392D4A2339FBCBD47049D3A1BA3E2EE35361D8B0AECE2ACB7250F6B9454AF59F4346E669D07CAD1D77E80B2C7767B5324EA1C30390D928745A79AEAE50094CD337A45C68A3FAA46ACEFE842C99B7AD8A81990F6CD5A60D09B81C4BEF45A4A197F557F83C3806CC9B3B38454B6EAA65EEFDA2BF76CE585555"
@@ -3976,7 +3962,7 @@ hood. (Binary rep of i = 01 case only)
       Botan::RSA_PublicKey pubkey(n, e);
   
       // // verify signature
-      Botan::PK_Verifier verifier(pubkey, "EMSA1(SHA-256)");
+      Botan::PK_Verifier verifier(pubkey, "PSS(SHA-256)");
       verifier.update(hexM);
       std::cout << "Signature " << (verifier.check_signature(signature)? "Valid" : "Invalid");
   
