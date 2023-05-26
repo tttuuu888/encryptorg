@@ -3601,8 +3601,8 @@ hood. (Binary rep of i = 01 case only)
       vector<uint8_t> i2{ 0,0,0,1 };
 
       int keyLen = KEY_LEN * 8;
-      int l2_2 = (keyLen>>8) & 0xFF;
-      int l2_3 =  keyLen & 0xFF;
+      uint8_t l2_2 = (keyLen>>8) & 0xFF;
+      uint8_t l2_3 =  keyLen & 0xFF;
       vector<uint8_t> l2{ 0, 0, l2_2, l2_3 };
 
       vector<uint8_t> data;
