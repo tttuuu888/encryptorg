@@ -3637,9 +3637,8 @@ hood. (Binary rep of i = 01 case only)
 #+HEADER: :var ITERATION  = 1001
 #+HEADER: :var KEY_LEN    = 32
 #+begin_src C++
-  #include <botan/hash.h>
+  #include <botan/pwdhash.h>
   #include <botan/hex.h>
-  #include <botan/pbkdf2.h>
   #include <iostream>
 
   using namespace std;
@@ -3647,16 +3646,16 @@ hood. (Binary rep of i = 01 case only)
 
   int main ()
   {
-      vector<uint8_t> salt1 = hex_decode(SALT);
-      uint8_t salt[256] = {0,};
-      int salt_len = salt1.size();
-      copy(salt1.begin(), salt1.end(), salt);
+      vector<uint8_t> salt = hex_decode(SALT);
 
-      // For example "PBKDF2(SHA-256)", "Scrypt", "OpenPGP-S2K(SHA-384)". Returns null if not available.
-      unique_ptr<PBKDF> kdf = PBKDF::create("PBKDF2(SHA-256)");
-      secure_vector<uint8_t> dk = kdf->pbkdf_iterations(KEY_LEN, PASSPHRASE, salt, salt_len, ITERATION);
+      auto pwd_fam = PasswordHashFamily::create_or_throw("PBKDF2(SHA-256)");
+      auto pwd = pwd_fam->from_params(ITERATION);
 
-      cout << "Derived key: " << hex_encode(dk) << "\n";
+      vector<uint8_t> key_vec(KEY_LEN);
+      std::span key{key_vec.data(), key_vec.size()};
+      pwd->hash(key, PASSPHRASE, salt);
+
+      cout << "Derived key: " << hex_encode(key) << "\n";
 
       return 0;
   }
@@ -3671,9 +3670,8 @@ hood. (Binary rep of i = 01 case only)
 #+HEADER: :var ITERATION  = 1001
 #+HEADER: :var KEY_LEN    = 32
 #+begin_src C++
-  #include <botan/hash.h>
+  #include <botan/pwdhash.h>
   #include <botan/hex.h>
-  #include <botan/pbkdf2.h>
   #include <iostream>
 
   using namespace std;
@@ -3681,18 +3679,18 @@ hood. (Binary rep of i = 01 case only)
 
   int main ()
   {
-      vector<uint8_t> salt1 = hex_decode(SALT);
-      uint8_t salt[256] = {0,};
-      int salt_len = salt1.size();
-      copy(salt1.begin(), salt1.end(), salt);
+      vector<uint8_t> salt = hex_decode(SALT);
       vector<uint8_t> pass1 = hex_decode(PASSPHRASE);
       string pass(pass1.begin(), pass1.end());
 
-      // For example "PBKDF2(SHA-256)", "Scrypt", "OpenPGP-S2K(SHA-384)". Returns null if not available.
-      unique_ptr<PBKDF> kdf = PBKDF::create("PBKDF2(SHA-256)");
-      secure_vector<uint8_t> dk = kdf->pbkdf_iterations(KEY_LEN, pass, salt, salt_len, ITERATION);
+      auto pwd_fam = PasswordHashFamily::create_or_throw("PBKDF2(SHA-256)");
+      auto pwd = pwd_fam->from_params(ITERATION);
 
-      cout << "Derived key: " << hex_encode(dk) << "\n";
+      vector<uint8_t> key_vec(KEY_LEN);
+      std::span key{key_vec.data(), key_vec.size()};
+      pwd->hash(key, pass, salt);
+
+      cout << "Derived key: " << hex_encode(key) << "\n";
 
       return 0;
   }
