@@ -151,6 +151,41 @@
 #+RESULTS:
 : B7FB0BE696FEAEC6F647F2F2A7B887944CF39546B1422105FB7FBEBC65787550
 
+** HMAC-256 text input
+#+HEADER: :var KEY = "test"
+#+HEADER: :var MSG = "more and more data goes into a file to exceed the buffer size"
+#+begin_src C++
+    #include <botan/hash.h>
+    #include <botan/hex.h>
+    #include <botan/mac.h>
+    #include <iostream>
+    #include <vector>
+
+    using namespace std;
+    using namespace Botan;
+
+    int main ()
+    {
+        string key1 = KEY;
+        string msg1 = MSG;
+        std::vector<uint8_t> key(key1.begin(), key1.end());
+        std::vector<uint8_t> msg(msg1.begin(), msg1.end());
+
+        auto hmac = Botan::MessageAuthenticationCode::create_or_throw("HMAC(SHA-256)");
+
+        hmac->set_key(key); hmac->update(msg);
+
+        auto ret = Botan::hex_encode(hmac->final());
+
+        cout << ret << endl;
+
+        return 0;
+    }
+#+end_src
+
+#+RESULTS:
+: 46B75292B81002FD873E89C532A1B8545D6EFC9822EE938FEBA6DE2723161A67
+
 ** HMAC-512 hex input
 #+HEADER: :var KEY = "000102030405060708090A0B0C0D0E0F000102030405060708090A0B0C0D0E0F"
 #+HEADER: :var MSG = "102030405060708090A0B0C0D0E0F000"
@@ -183,6 +218,41 @@
 
 #+RESULTS:
 : 8A122F1E030909B37DEF5193AD119F08B9EF0E0BCE48037574EA26F786F4D9C45DA76B7F769B278053A932930372EDDBF10AB21C2A33FADC997250445D6BD71A
+
+** HMAC-512 text input
+#+HEADER: :var KEY = "test"
+#+HEADER: :var MSG = "more and more data goes into a file to exceed the buffer size"
+#+begin_src C++
+  #include <botan/hash.h>
+  #include <botan/hex.h>
+  #include <botan/mac.h>
+  #include <iostream>
+  #include <vector>
+
+  using namespace std;
+  using namespace Botan;
+
+  int main ()
+  {
+      string key1 = KEY;
+      string msg1 = MSG;
+      std::vector<uint8_t> key(key1.begin(), key1.end());
+      std::vector<uint8_t> msg(msg1.begin(), msg1.end());
+
+      auto hmac = Botan::MessageAuthenticationCode::create_or_throw("HMAC(SHA-512)");
+
+      hmac->set_key(key); hmac->update(msg);
+
+      auto ret = Botan::hex_encode(hmac->final());
+
+      cout << ret << endl;
+
+      return 0;
+  }
+#+end_src
+
+#+RESULTS:
+: 5B2B459E89ECD204BEB959DC6214A4C4B7DA20BFC4C8ADACF9615BDDD0B2B8D2E950409E4703DE11F02E50852EDFB3CFBDAF8795E0EBF0AD50CF15E29150D234
 
 ** AES-128 CMAC
 #+HEADER: :var KEY  = "000102030405060708090A0B0C0D0E0F"
