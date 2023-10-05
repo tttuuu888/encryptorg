@@ -3776,6 +3776,74 @@ hood. (Binary rep of i = 01 case only)
 : Derived key : 1B258D35FCA9D012E7D3B7A506FBA3A4
 
 #+end_src
+** HKDF
+*** HKDF - Text passphrase
+#+HEADER: :var PASSPHRASE = "abcd"
+#+HEADER: :var SALT       = "102030405060708090A0B0C0D0E0F000"
+#+HEADER: :var INFO       = ""
+#+HEADER: :var KEY_LEN    = 32
+#+begin_src C++
+  #include <botan/hex.h>
+  #include <botan/kdf.h>
+  #include <iostream>
+
+  using namespace std;
+  using namespace Botan;
+
+  int main ()
+  {
+      string plain = PASSPHRASE;
+      vector<uint8_t> label = hex_decode(INFO);
+      vector<uint8_t> salt = hex_decode(SALT);
+      vector<uint8_t> passphrase(plain.begin(), plain.end());
+
+      span secret{passphrase.data(), passphrase.size()};
+
+      auto kdf = Botan::KDF::create_or_throw("HKDF(SHA-256)");
+      auto key = kdf->derive_key(KEY_LEN, secret, salt, label);
+
+      cout << "Derived key: " << hex_encode(key) << "\n";
+
+      return 0;
+  }
+#+end_src
+
+#+RESULTS:
+: Derived key: 7B07FAB24B269299C42E6E8ED99760324CD302BC5D0BD6CCE45896C7E1BAD533
+
+*** HKDF - HEX passphrase
+#+HEADER: :var PASSPHRASE = "000102030405060708090A0B0C0D0E0F"
+#+HEADER: :var SALT       = "102030405060708090A0B0C0D0E0F000"
+#+HEADER: :var INFO       = ""
+#+HEADER: :var KEY_LEN    = 32
+#+begin_src C++
+  #include <botan/hex.h>
+  #include <botan/kdf.h>
+  #include <iostream>
+
+  using namespace std;
+  using namespace Botan;
+
+  int main ()
+  {
+      string plain = PASSPHRASE;
+      vector<uint8_t> label = hex_decode(INFO);
+      vector<uint8_t> salt = hex_decode(SALT);
+      vector<uint8_t> passphrase = hex_decode(PASSPHRASE);
+
+      span secret{passphrase.data(), passphrase.size()};
+
+      auto kdf = Botan::KDF::create_or_throw("HKDF(SHA-256)");
+      auto key = kdf->derive_key(KEY_LEN, secret, salt, label);
+
+      cout << "Derived key: " << hex_encode(key) << "\n";
+
+      return 0;
+  }
+#+end_src
+
+#+RESULTS:
+: Derived key: 11E806DCCE73A454CB16AF7EE68F567C5DCD568F305459503A59D0BA17EF970A
 ** PBKDF2
 *** PBKDF2 - Text passphrase
 #+HEADER: :var PASSPHRASE = "abcd"
