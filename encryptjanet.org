@@ -686,3 +686,450 @@
 
 #+RESULTS:
 : 00112233445566778899AABBCCDDEEFF
+
+* ARIA
+** ARIA-128
+*** Encrypt
+#+HEADER: :var KEY  = "000102030405060708090A0B0C0D0E0F"
+#+HEADER: :var TEXT = "00112233445566778899AABBCCDDEEFF"
+#+begin_src janet
+  (use botan)
+  (let [bc (block-cipher/new "ARIA-128")]
+    (:set-key bc (hex-decode KEY))
+    (print (hex-encode (:encrypt bc (hex-decode TEXT)))))
+#+end_src
+
+#+RESULTS:
+: D718FBD6AB644C739DA95F3BE6451778
+
+*** Decrypt
+#+HEADER: :var KEY       = "000102030405060708090A0B0C0D0E0F"
+#+HEADER: :var ENCRYPTED = "D718FBD6AB644C739DA95F3BE6451778"
+#+begin_src janet
+  (use botan)
+  (let [bc (block-cipher/new "ARIA-128")]
+    (:set-key bc (hex-decode KEY))
+    (print (hex-encode (:decrypt bc (hex-decode ENCRYPTED)))))
+#+end_src
+
+#+RESULTS:
+: 00112233445566778899AABBCCDDEEFF
+
+** ARIA-192
+*** Encrypt
+#+HEADER: :var KEY  = "000102030405060708090A0B0C0D0E0F0001020304050607"
+#+HEADER: :var TEXT = "00112233445566778899AABBCCDDEEFF"
+#+begin_src janet
+  (use botan)
+  (let [bc (block-cipher/new "ARIA-192")]
+    (:set-key bc (hex-decode KEY))
+    (print (hex-encode (:encrypt bc (hex-decode TEXT)))))
+#+end_src
+
+#+RESULTS:
+: 0DEDEC2A613869147C86397A97CA44F6
+
+*** Decrypt
+#+HEADER: :var KEY       = "000102030405060708090A0B0C0D0E0F0001020304050607"
+#+HEADER: :var ENCRYPTED = "0DEDEC2A613869147C86397A97CA44F6"
+#+begin_src janet
+  (use botan)
+  (let [bc (block-cipher/new "ARIA-192")]
+    (:set-key bc (hex-decode KEY))
+    (print (hex-encode (:decrypt bc (hex-decode ENCRYPTED)))))
+#+end_src
+
+#+RESULTS:
+: 00112233445566778899AABBCCDDEEFF
+
+** ARIA-256
+*** Encrypt
+#+HEADER: :var KEY  = "000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F"
+#+HEADER: :var TEXT = "00112233445566778899AABBCCDDEEFF"
+#+begin_src janet
+  (use botan)
+  (let [bc (block-cipher/new "ARIA-256")]
+    (:set-key bc (hex-decode KEY))
+    (print (hex-encode (:encrypt bc (hex-decode TEXT)))))
+#+end_src
+
+#+RESULTS:
+: F92BD7C79FB72E2F2B8F80C1972D24FC
+*** Decrypt
+#+HEADER: :var KEY       = "000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F"
+#+HEADER: :var ENCRYPTED = "F92BD7C79FB72E2F2B8F80C1972D24FC"
+#+begin_src janet
+  (use botan)
+  (let [bc (block-cipher/new "ARIA-256")]
+    (:set-key bc (hex-decode KEY))
+    (print (hex-encode (:decrypt bc (hex-decode ENCRYPTED)))))
+#+end_src
+
+#+RESULTS:
+: 00112233445566778899AABBCCDDEEFF
+** ARIA-GCM-128
+*** Encrypt
+#+HEADER: :var KEY  = "00112233445566778899AABBCCDDEEFF"
+#+HEADER: :var TEXT = "102030405060708090A0B0C0D0E0F000"
+#+HEADER: :var IV   = "112233445566778899AABBCC"
+#+HEADER: :var AAD  = "0102030405060708090A0B0C0D0E"
+#+begin_src janet
+  (use botan)
+  (let [sc (cipher/new "ARIA-128/GCM" :encrypt)
+       tag-len (:get-tag-length sc)]
+    (:set-key sc (hex-decode KEY))
+    (:set-associated-data sc (hex-decode AAD))
+    (:start sc (hex-decode IV))
+    (def ret (hex-encode (:finish sc (hex-decode TEXT))))
+    (print "Enc: " (string/slice ret 0 (- (length ret) (* 2 tag-len))))
+    (print "Tag: " (string/slice ret (- (length ret) (* 2 tag-len)))))
+#+end_src
+
+#+RESULTS:
+: Enc: B2949DD080ADFFA66C72BE18A3817CF3
+: Tag: B7DFC8E22C8C3212AD7ACED059966E7A
+*** Decrypt
+#+HEADER: :var KEY       = "00112233445566778899AABBCCDDEEFF"
+#+HEADER: :var ENCRYPTED = "B2949DD080ADFFA66C72BE18A3817CF3"
+#+HEADER: :var INPUT_TAG = "B7DFC8E22C8C3212AD7ACED059966E7A"
+#+HEADER: :var IV        = "112233445566778899AABBCC"
+#+HEADER: :var AAD       = "0102030405060708090A0B0C0D0E"
+#+begin_src janet
+  (use botan)
+  (let [sc (cipher/new "ARIA-128/GCM" :decrypt)]
+    (:set-key sc (hex-decode KEY))
+    (:set-associated-data sc (hex-decode AAD))
+    (:start sc (hex-decode IV))
+    (print (hex-encode (:finish sc (hex-decode (string ENCRYPTED INPUT_TAG))))))
+#+end_src
+
+#+RESULTS:
+: 102030405060708090A0B0C0D0E0F000
+** ARIA-GCM-192
+*** Encrypt
+#+HEADER: :var KEY  = "00112233445566778899AABBCCDDEEFF0011223344556677"
+#+HEADER: :var TEXT = "102030405060708090A0B0C0D0E0F000"
+#+HEADER: :var IV   = "112233445566778899AABBCC"
+#+HEADER: :var AAD  = "0102030405060708090A0B0C0D0E"
+#+begin_src janet
+  (use botan)
+  (let [sc (cipher/new "ARIA-192/GCM" :encrypt)
+       tag-len (:get-tag-length sc)]
+    (:set-key sc (hex-decode KEY))
+    (:set-associated-data sc (hex-decode AAD))
+    (:start sc (hex-decode IV))
+    (def ret (hex-encode (:finish sc (hex-decode TEXT))))
+    (print "Enc: " (string/slice ret 0 (- (length ret) (* 2 tag-len))))
+    (print "Tag: " (string/slice ret (- (length ret) (* 2 tag-len)))))
+#+end_src
+
+#+RESULTS:
+: Enc: E203BFFE67525F15E258F465418F9378
+: Tag: 7AEBC287AE39724DB396BE4105808CD4
+
+*** Decrypt
+#+HEADER: :var KEY       = "00112233445566778899AABBCCDDEEFF0011223344556677"
+#+HEADER: :var ENCRYPTED = "E203BFFE67525F15E258F465418F9378"
+#+HEADER: :var INPUT_TAG = "7AEBC287AE39724DB396BE4105808CD4"
+#+HEADER: :var IV        = "112233445566778899AABBCC"
+#+HEADER: :var AAD       = "0102030405060708090A0B0C0D0E"
+#+begin_src janet
+  (use botan)
+  (let [sc (cipher/new "ARIA-192/GCM" :decrypt)]
+    (:set-key sc (hex-decode KEY))
+    (:set-associated-data sc (hex-decode AAD))
+    (:start sc (hex-decode IV))
+    (print (hex-encode (:finish sc (hex-decode (string ENCRYPTED INPUT_TAG))))))
+#+end_src
+
+#+RESULTS:
+: 102030405060708090A0B0C0D0E0F000
+** ARIA-GCM-256
+*** Encrypt
+#+HEADER: :var KEY  = "00112233445566778899AABBCCDDEEFF00112233445566778899AABBCCDDEEFF"
+#+HEADER: :var TEXT = "102030405060708090A0B0C0D0E0F000"
+#+HEADER: :var IV   = "112233445566778899AABBCC"
+#+HEADER: :var AAD  = "0102030405060708090A0B0C0D0E"
+#+begin_src janet
+  (use botan)
+  (let [sc (cipher/new "ARIA-256/GCM" :encrypt)
+       tag-len (:get-tag-length sc)]
+    (:set-key sc (hex-decode KEY))
+    (:set-associated-data sc (hex-decode AAD))
+    (:start sc (hex-decode IV))
+    (def ret (hex-encode (:finish sc (hex-decode TEXT))))
+    (print "Enc: " (string/slice ret 0 (- (length ret) (* 2 tag-len))))
+    (print "Tag: " (string/slice ret (- (length ret) (* 2 tag-len)))))
+#+end_src
+
+#+RESULTS:
+: Enc: 5FD6F4743CC128D4692E467AC7082F48
+: Tag: 4A85EA53925DA74964CE1BE7F38A3840
+
+*** Decrypt
+#+HEADER: :var KEY       = "00112233445566778899AABBCCDDEEFF00112233445566778899AABBCCDDEEFF"
+#+HEADER: :var ENCRYPTED = "5FD6F4743CC128D4692E467AC7082F48"
+#+HEADER: :var INPUT_TAG = "4A85EA53925DA74964CE1BE7F38A3840"
+#+HEADER: :var IV        = "112233445566778899AABBCC"
+#+HEADER: :var AAD       = "0102030405060708090A0B0C0D0E"
+#+begin_src janet
+  (use botan)
+  (let [sc (cipher/new "ARIA-256/GCM" :decrypt)]
+    (:set-key sc (hex-decode KEY))
+    (:set-associated-data sc (hex-decode AAD))
+    (:start sc (hex-decode IV))
+    (print (hex-encode (:finish sc (hex-decode (string ENCRYPTED INPUT_TAG))))))
+#+end_src
+
+#+RESULTS:
+: 102030405060708090A0B0C0D0E0F000
+*** Encrypt text string
+#+HEADER: :var KEY  = "00112233445566778899AABBCCDDEEFF00112233445566778899AABBCCDDEEFF"
+#+HEADER: :var TEXT = "string text input"
+#+HEADER: :var IV   = "112233445566778899AABBCC"
+#+HEADER: :var AAD  = "0102030405060708090A0B0C0D0E"
+#+begin_src janet
+  (use botan)
+  (let [sc (cipher/new "ARIA-256/GCM" :encrypt)
+       tag-len (:get-tag-length sc)]
+    (:set-key sc (hex-decode KEY))
+    (:set-associated-data sc (hex-decode AAD))
+    (:start sc (hex-decode IV))
+    (def ret (hex-encode (:finish sc TEXT)))
+    (print "Enc: " (string/slice ret 0 (- (length ret) (* 2 tag-len))))
+    (print "Tag: " (string/slice ret (- (length ret) (* 2 tag-len)))))
+#+end_src
+
+#+RESULTS:
+: Enc: 3C82B65D02C678209CF6829A7E86AF3D17
+: Tag: A75370B9E717F73875F02E4491FB022D
+
+*** Decrypt to text string
+#+HEADER: :var KEY       = "00112233445566778899AABBCCDDEEFF00112233445566778899AABBCCDDEEFF"
+#+HEADER: :var ENCRYPTED = "3C82B65D02C678209CF6829A7E86AF3D17"
+#+HEADER: :var INPUT_TAG = "A75370B9E717F73875F02E4491FB022D"
+#+HEADER: :var IV        = "112233445566778899AABBCC"
+#+HEADER: :var AAD       = "0102030405060708090A0B0C0D0E"
+#+begin_src janet
+  (use botan)
+  (let [sc (cipher/new "ARIA-256/GCM" :decrypt)]
+    (:set-key sc (hex-decode KEY))
+    (:set-associated-data sc (hex-decode AAD))
+    (:start sc (hex-decode IV))
+    (print (:finish sc (hex-decode (string ENCRYPTED INPUT_TAG)))))
+#+end_src
+
+#+RESULTS:
+: string text input
+** ARIA-CBC-128 NoPadding
+*** Encrypt
+#+HEADER: :var KEY  = "000102030405060708090A0B0C0D0E0F"
+#+HEADER: :var IV   = "112233445566778899AABBCCDDEEFF00"
+#+HEADER: :var TEXT = "102030405060708090A0B0C0D0E0F000"
+#+begin_src janet
+  (use botan)
+  (let [sc (cipher/new "ARIA-128/CBC/NoPadding" :encrypt)]
+    (:set-key sc (hex-decode KEY))
+    (:start sc (hex-decode IV))
+    (print (hex-encode (:finish sc (hex-decode TEXT)))))
+#+end_src
+
+#+RESULTS:
+: 63792CEE6F18F62170822C347775F71D
+*** Decrypt
+#+HEADER: :var KEY       = "000102030405060708090A0B0C0D0E0F"
+#+HEADER: :var IV        = "112233445566778899AABBCCDDEEFF00"
+#+HEADER: :var ENCRYPTED = "63792CEE6F18F62170822C347775F71D"
+#+begin_src janet
+  (use botan)
+  (let [sc (cipher/new "ARIA-128/CBC/NoPadding" :decrypt)]
+    (:set-key sc (hex-decode KEY))
+    (:start sc (hex-decode IV))
+    (print (hex-encode (:finish sc (hex-decode ENCRYPTED)))))
+#+end_src
+
+#+RESULTS:
+: 102030405060708090A0B0C0D0E0F000
+** ARIA-CBC-128 PKCS7 Padding
+*** Encrypt
+#+HEADER: :var KEY  = "000102030405060708090A0B0C0D0E0F"
+#+HEADER: :var IV   = "112233445566778899AABBCCDDEEFF00"
+#+HEADER: :var TEXT = "102030405060708090A0B0C0D0E0F000"
+#+begin_src janet
+  (use botan)
+  (let [sc (cipher/new "ARIA-128/CBC/PKCS7" :encrypt)]
+    (:set-key sc (hex-decode KEY))
+    (:start sc (hex-decode IV))
+    (print (hex-encode (:finish sc (hex-decode TEXT)))))
+#+end_src
+
+#+RESULTS:
+: 63792CEE6F18F62170822C347775F71D31D9563961808005B878F605CB708BC5
+*** Decrypt
+#+HEADER: :var KEY       = "000102030405060708090A0B0C0D0E0F"
+#+HEADER: :var ENCRYPTED = "63792CEE6F18F62170822C347775F71D31D9563961808005B878F605CB708BC5"
+#+HEADER: :var IV        = "112233445566778899AABBCCDDEEFF00"
+#+begin_src janet
+  (use botan)
+  (let [sc (cipher/new "ARIA-128/CBC/PKCS7" :decrypt)]
+    (:set-key sc (hex-decode KEY))
+    (:start sc (hex-decode IV))
+    (print (hex-encode (:finish sc (hex-decode ENCRYPTED)))))
+#+end_src
+
+#+RESULTS:
+: 102030405060708090A0B0C0D0E0F000
+** ARIA-CBC-128 OneAndZeros Padding
+*** Encrypt
+#+HEADER: :var KEY  = "000102030405060708090A0B0C0D0E0F"
+#+HEADER: :var IV   = "112233445566778899AABBCCDDEEFF00"
+#+HEADER: :var TEXT = "102030405060708090A0B0C0D0E0F000"
+#+begin_src janet
+  (use botan)
+  (let [sc (cipher/new "ARIA-128/CBC/OneAndZeros" :encrypt)]
+    (:set-key sc (hex-decode KEY))
+    (:start sc (hex-decode IV))
+    (print (hex-encode (:finish sc (hex-decode TEXT)))))
+#+end_src
+
+#+RESULTS:
+: 63792CEE6F18F62170822C347775F71D7087D01EA5677EEAF8FA23720BDB91AB
+*** Decrypt
+#+HEADER: :var KEY       = "000102030405060708090A0B0C0D0E0F"
+#+HEADER: :var ENCRYPTED = "63792CEE6F18F62170822C347775F71D7087D01EA5677EEAF8FA23720BDB91AB"
+#+HEADER: :var IV        = "112233445566778899AABBCCDDEEFF00"
+#+begin_src janet
+  (use botan)
+  (let [sc (cipher/new "ARIA-128/CBC/OneAndZeros" :decrypt)]
+    (:set-key sc (hex-decode KEY))
+    (:start sc (hex-decode IV))
+    (print (hex-encode (:finish sc (hex-decode ENCRYPTED)))))
+#+end_src
+
+#+RESULTS:
+: 102030405060708090A0B0C0D0E0F000
+** ARIA-CBC-256 PKCS7 Padding
+*** Encrypt
+#+HEADER: :var KEY  = "000102030405060708090A0B0C0D0E0F000102030405060708090A0B0C0D0E0F"
+#+HEADER: :var TEXT = "102030405060708090A0B0C0D0E0F000"
+#+HEADER: :var IV   = "112233445566778899AABBCCDDEEFF00"
+#+begin_src janet
+  (use botan)
+  (let [sc (cipher/new "ARIA-256/CBC/PKCS7" :encrypt)]
+    (:set-key sc (hex-decode KEY))
+    (:start sc (hex-decode IV))
+    (print (hex-encode (:finish sc (hex-decode TEXT)))))
+#+end_src
+
+#+RESULTS:
+: EE7BF3D64A28A69B6376C8281FE411708592C33960629AF398F16B854B50E8DA
+*** Decrypt
+#+HEADER: :var KEY       = "000102030405060708090A0B0C0D0E0F000102030405060708090A0B0C0D0E0F"
+#+HEADER: :var ENCRYPTED = "EE7BF3D64A28A69B6376C8281FE411708592C33960629AF398F16B854B50E8DA"
+#+HEADER: :var IV        = "112233445566778899AABBCCDDEEFF00"
+#+begin_src janet
+  (use botan)
+  (let [sc (cipher/new "ARIA-256/CBC/PKCS7" :decrypt)]
+    (:set-key sc (hex-decode KEY))
+    (:start sc (hex-decode IV))
+    (print (hex-encode (:finish sc (hex-decode ENCRYPTED)))))
+#+end_src
+
+#+RESULTS:
+: 102030405060708090A0B0C0D0E0F000
+** ARIA-CBC-256 OneAndZeros Padding
+*** Encrypt
+#+HEADER: :var KEY  = "000102030405060708090A0B0C0D0E0F000102030405060708090A0B0C0D0E0F"
+#+HEADER: :var TEXT = "112233445566665544332211"
+#+HEADER: :var IV   = "112233445566778899AABBCCDDEEFF00"
+#+begin_src janet
+  (use botan)
+  (let [sc (cipher/new "ARIA-256/CBC/OneAndZeros" :encrypt)]
+    (:set-key sc (hex-decode KEY))
+    (:start sc (hex-decode IV))
+    (print (hex-encode (:finish sc (hex-decode TEXT)))))
+#+end_src
+
+#+RESULTS:
+: E893C170CFF6E847CFC1DA42925169A7
+*** Decrypt
+#+HEADER: :var KEY       = "000102030405060708090A0B0C0D0E0F000102030405060708090A0B0C0D0E0F"
+#+HEADER: :var ENCRYPTED = "E893C170CFF6E847CFC1DA42925169A7"
+#+HEADER: :var IV        = "112233445566778899AABBCCDDEEFF00"
+#+begin_src janet
+  (use botan)
+  (let [sc (cipher/new "ARIA-256/CBC/OneAndZeros" :decrypt)]
+    (:set-key sc (hex-decode KEY))
+    (:start sc (hex-decode IV))
+    (print (hex-encode (:finish sc (hex-decode ENCRYPTED)))))
+#+end_src
+
+#+RESULTS:
+: 112233445566665544332211
+** ARIA-CTR-128
+*** Encrypt
+#+HEADER: :var KEY  = "000102030405060708090A0B0C0D0E0F"
+#+HEADER: :var IV   = "112233445566778899AABBCCDDEEFF00"
+#+HEADER: :var TEXT = "000102030405060708090A0B0C0D0E0F000102030405060708090A0B0C0D0E0F"
+#+begin_src janet
+  (use botan)
+  (let [sc (cipher/new "ARIA-128/CTR" :encrypt)]
+    (:set-key sc (hex-decode KEY))
+    (:start sc (hex-decode IV))
+    (print (hex-encode (:finish sc (hex-decode TEXT)))))
+#+end_src
+
+#+RESULTS:
+: EFFC474AE70949DA46BF4F713207ECA663E24C8E569ECC950E7B3C550F44F60A
+*** Decrypt
+#+HEADER: :var KEY       = "000102030405060708090A0B0C0D0E0F"
+#+HEADER: :var IV        = "112233445566778899AABBCCDDEEFF00"
+#+HEADER: :var ENCRYPTED = "EFFC474AE70949DA46BF4F713207ECA663E24C8E569ECC950E7B3C550F44F60A"
+#+begin_src janet
+  (use botan)
+  (let [sc (cipher/new "ARIA-128/CTR" :decrypt)]
+    (:set-key sc (hex-decode KEY))
+    (:start sc (hex-decode IV))
+    (print (hex-encode (:finish sc (hex-decode ENCRYPTED)))))
+#+end_src
+
+#+RESULTS:
+: 000102030405060708090A0B0C0D0E0F000102030405060708090A0B0C0D0E0F
+** ARIA-CCM-128
+*** Encrypt
+#+HEADER: :var KEY   = "000102030405060708090A0B0C0D0E0F"
+#+HEADER: :var TEXT  = "102030405060708090A0B0C0D0E0F000"
+#+HEADER: :var NONCE = "FFFFFFFFFFFFFFFFFFFFFFFF"
+#+HEADER: :var AAD   = "0102030405060708090A0B0C0D0E"
+#+begin_src janet
+  (use botan)
+  (let [sc (cipher/new "ARIA-128/CCM" :encrypt)
+       tag-len (:get-tag-length sc)]
+    (:set-key sc (hex-decode KEY))
+    (:set-associated-data sc (hex-decode AAD))
+    (:start sc (hex-decode NONCE))
+    (def ret (hex-encode (:finish sc (hex-decode TEXT))))
+    (print "Enc: " (string/slice ret 0 (- (length ret) (* 2 tag-len))))
+    (print "Tag: " (string/slice ret (- (length ret) (* 2 tag-len)))))
+#+end_src
+
+#+RESULTS:
+: Enc: A093B40F96657DFC7B2DE4DC1E7A70B9
+: Tag: 25895A5116F0A697D619D59E29DEDD36
+*** Decrypt
+#+HEADER: :var KEY       = "000102030405060708090A0B0C0D0E0F"
+#+HEADER: :var ENCRYPTED = "A093B40F96657DFC7B2DE4DC1E7A70B9"
+#+HEADER: :var INPUT_TAG = "25895A5116F0A697D619D59E29DEDD36"
+#+HEADER: :var NONCE     = "FFFFFFFFFFFFFFFFFFFFFFFF"
+#+HEADER: :var AAD       = "0102030405060708090A0B0C0D0E"
+#+begin_src janet
+  (use botan)
+  (let [sc (cipher/new "ARIA-128/CCM" :decrypt)]
+    (:set-key sc (hex-decode KEY))
+    (:set-associated-data sc (hex-decode AAD))
+    (:start sc (hex-decode NONCE))
+    (print (hex-encode (:finish sc (hex-decode (string ENCRYPTED INPUT_TAG))))))
+#+end_src
+
+#+RESULTS:
+: 102030405060708090A0B0C0D0E0F000
