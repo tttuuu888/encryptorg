@@ -1278,3 +1278,156 @@
 
 #+RESULTS:
 : 1020304050607080
+
+* ECDH
+** Random key - Create sessionkey
+#+HEADER: :var TEXT        = "test msg"
+#+begin_src janet
+  (use botan)
+  (let [prikey1 (privkey/new "ECDH" "secp256r1")
+        prikey2 (privkey/new "ECDH" "secp256r1")
+        pubkey1 (:get-pubkey prikey1)
+        pubkey2 (:get-pubkey prikey2)
+        prikey1-val (:to-bin (:get-field prikey1 "x"))
+        prikey2-val (:to-bin (:get-field prikey2 "x"))
+        pubkey1-val (:get-public-point pubkey1)
+        pubkey2-val (:get-public-point pubkey2)
+        pk-ka1 (pk-key-agreement/new prikey1 "KDF2(SHA-256)")
+        pk-ka2 (pk-key-agreement/new prikey2 "KDF2(SHA-256)")
+        salt (:get (rng/new) 64)
+        agreekey1 (:agree pk-ka1 pubkey2-val salt)
+        agreekey2 (:agree pk-ka2 pubkey1-val salt)
+       ]
+    (print "prikeyA: " (hex-encode prikey1-val))
+    (print "prikeyB: " (hex-encode prikey2-val))
+    (print "pubkeyA: " (hex-encode pubkey1-val))
+    (print "pubkeyB: " (hex-encode pubkey2-val))
+    (print "agreekeyA: " (hex-encode agreekey1))
+    (print "agreekeyB: " (hex-encode agreekey2)))
+#+end_src
+
+#+RESULTS:
+: prikeyA: 3ED35510A13ACD3898739A734FDDF004164A5926958744BB3C0922F90C87DEAC
+: prikeyB: E79314FC2CE53087E0FE9220F3BB4FB69ED62CF9C737EE726ECD3F4BDC824971
+: pubkeyA: 04B7753571D532C46E4B52DFB4DD6162434AB48BCA194A5B1428270071D8F329FC6FAB4B19880A950D499F36131BE34A35CC7BF993D78E36F7184FB66DAFD0E57A
+: pubkeyB: 049520530DC2D9271EE29359B3AAFA632F75334D867A5F2ADEE445C518F5B8608721034917AF16FF228D2C351F5021BB67C5530DBFAD2E312A5C1BCDDDBA42A4B1
+: agreekeyA: 8C9CFF975CF2C2F24EBF36B34CA31EFE3BFAFBB21D650B3560CAE2C0D16512BB
+: agreekeyB: 8C9CFF975CF2C2F24EBF36B34CA31EFE3BFAFBB21D650B3560CAE2C0D16512BB
+
+** Existing key(Hex) - Create sessionkey (Public key can be omitted)
+#+HEADER: :var A_PRIVATE_KEY = "272381629D174EAD2F3939F2FFDCFCFDAFB5885E789EBA30969127F6B6E8F8E2"
+#+HEADER: :var A_PUBLIC_KEY  = "048D05F3D3FC92A06F97B3D6861D0C9425483E16E2F6AA2729F99211FF1B364E10A46B47A96EF995785245FC5302EF45A0D5EF1486B9865603969118D455AFBB53"
+#+HEADER: :var B_PRIVATE_KEY = "EBF6E5A05A4AC0D1D2B2A629BF808B50B51DB7ED5E7CBAE968783C925FCC679D"
+#+HEADER: :var B_PUBLIC_KEY  = "04EFB6C4A48C69D85C6831922530536FE4500D16F90A454960465CDBF178E4728373D41625F3906A69107463FDD0FA03A1C4E1EB619968DEFEB41D1338B65049D4"
+#+begin_src janet
+  (use botan)
+  (let [prikey1-mpi (mpi/from-hex-str A_PRIVATE_KEY)
+        prikey2-mpi (mpi/from-hex-str B_PRIVATE_KEY)
+
+        pubkey1-mpi-x (mpi/from-hex-str (string/slice A_PUBLIC_KEY 2 (+ 2 (/ (- (length A_PUBLIC_KEY) 2) 2))))
+        pubkey1-mpi-y (mpi/from-hex-str (string/slice A_PUBLIC_KEY (+ 2 (/ (- (length A_PUBLIC_KEY) 2) 2))))
+
+        pubkey2-mpi-x (mpi/from-hex-str (string/slice B_PUBLIC_KEY 2 (+ 2 (/ (- (length B_PUBLIC_KEY) 2) 2))))
+        pubkey2-mpi-y (mpi/from-hex-str (string/slice B_PUBLIC_KEY (+ 2 (/ (- (length B_PUBLIC_KEY) 2) 2))))
+
+        prikey1 (privkey/load-ecdh "secp256r1" prikey1-mpi)
+        prikey2 (privkey/load-ecdh "secp256r1" prikey2-mpi)
+
+        pubkey1 (pubkey/load-ecdh "secp256r1" pubkey1-mpi-x pubkey1-mpi-y)
+        pubkey2 (pubkey/load-ecdh "secp256r1" pubkey2-mpi-x pubkey2-mpi-y)
+
+        pubkey1-from-pri (:get-pubkey prikey1)
+        pubkey2-from-pri (:get-pubkey prikey2)
+
+        pk-ka (pk-key-agreement/new prikey1 "Raw")
+        agreekey (:agree pk-ka (:get-public-point pubkey2) "")]
+    (assert (= (:get-public-point pubkey1) (:get-public-point pubkey1-from-pri)))
+    (assert (= (:get-public-point pubkey2) (:get-public-point pubkey2-from-pri)))
+
+    (print "prikeyA: " (hex-encode (:to-bin prikey1-mpi)))
+    (print "prikeyB: " (hex-encode (:to-bin prikey2-mpi)))
+    (print "pubkeyA: " (hex-encode (:get-public-point pubkey1)))
+    (print "pubkeyB: " (hex-encode (:get-public-point pubkey2)))
+    (print "agreekey: " (hex-encode agreekey)))
+#+end_src
+
+#+RESULTS:
+: prikeyA: 272381629D174EAD2F3939F2FFDCFCFDAFB5885E789EBA30969127F6B6E8F8E2
+: prikeyB: EBF6E5A05A4AC0D1D2B2A629BF808B50B51DB7ED5E7CBAE968783C925FCC679D
+: pubkeyA: 048D05F3D3FC92A06F97B3D6861D0C9425483E16E2F6AA2729F99211FF1B364E10A46B47A96EF995785245FC5302EF45A0D5EF1486B9865603969118D455AFBB53
+: pubkeyB: 04EFB6C4A48C69D85C6831922530536FE4500D16F90A454960465CDBF178E4728373D41625F3906A69107463FDD0FA03A1C4E1EB619968DEFEB41D1338B65049D4
+: agreekey: 3C027AF77D256133E465CE56ABC1CF31B3D428FD5FE528A4481BCF5D295DAA69
+
+** Existing key(Big Int) - Create sessionkey
+#+HEADER: :var A_PRIVATE_KEY = "17702933725911759833018382133741290876335542967772335450363342488878254192866"
+#+HEADER: :var A_PUBLIC_KEY  = "61017218725251769835925365666700278871445386965526678184487919969123210546842177730340048341794298839866705223449066751284256420111064842794150013009115987"
+#+HEADER: :var B_PRIVATE_KEY = "106729748618016823529684004271423234939788438170848142794308826289302701631389"
+#+HEADER: :var B_PUBLIC_KEY  = "66186069373064324507716733592744495348638623787425372736469519431587026981344737339468148830286137966427921162803027707669848205986009555327089307961805268"
+#+begin_src janet
+  (use botan)
+  (let [prikey1-hex (hex-encode (:to-bin (mpi/from-str A_PRIVATE_KEY)))
+        prikey2-hex (hex-encode (:to-bin (mpi/from-str B_PRIVATE_KEY)))
+        pubkey1-hex (hex-encode (:to-bin (mpi/from-str A_PUBLIC_KEY)))
+        pubkey2-hex (hex-encode (:to-bin (mpi/from-str B_PUBLIC_KEY)))
+
+        prikey1-mpi (mpi/from-str A_PRIVATE_KEY)
+        prikey2-mpi (mpi/from-str B_PRIVATE_KEY)
+
+        pubkey1-mpi-x (mpi/from-hex-str (string/slice pubkey1-hex 2 (+ 2 (/ (- (length pubkey1-hex) 2) 2))))
+        pubkey1-mpi-y (mpi/from-hex-str (string/slice pubkey1-hex (+ 2 (/ (- (length pubkey1-hex) 2) 2))))
+
+        pubkey2-mpi-x (mpi/from-hex-str (string/slice pubkey2-hex 2 (+ 2 (/ (- (length pubkey2-hex) 2) 2))))
+        pubkey2-mpi-y (mpi/from-hex-str (string/slice pubkey2-hex (+ 2 (/ (- (length pubkey2-hex) 2) 2))))
+
+        prikey1 (privkey/load-ecdh "secp256r1" prikey1-mpi)
+        prikey2 (privkey/load-ecdh "secp256r1" prikey2-mpi)
+
+        pubkey1 (pubkey/load-ecdh "secp256r1" pubkey1-mpi-x pubkey1-mpi-y)
+        pubkey2 (pubkey/load-ecdh "secp256r1" pubkey2-mpi-x pubkey2-mpi-y)
+
+        pubkey1-from-pri (:get-pubkey prikey1)
+        pubkey2-from-pri (:get-pubkey prikey2)
+
+        pk-ka (pk-key-agreement/new prikey1 "Raw")
+        agreekey (:agree pk-ka (:get-public-point pubkey2) "")]
+    (assert (= (:get-public-point pubkey1) (:get-public-point pubkey1-from-pri)))
+    (assert (= (:get-public-point pubkey2) (:get-public-point pubkey2-from-pri)))
+
+    (print "prikeyA: " (hex-encode (:to-bin prikey1-mpi)))
+    (print "prikeyB: " (hex-encode (:to-bin prikey2-mpi)))
+    (print "pubkeyA: " (hex-encode (:get-public-point pubkey1)))
+    (print "pubkeyB: " (hex-encode (:get-public-point pubkey2)))
+    (print "agreekey: " (hex-encode agreekey)))
+#+end_src
+
+#+RESULTS:
+: prikeyA: 272381629D174EAD2F3939F2FFDCFCFDAFB5885E789EBA30969127F6B6E8F8E2
+: prikeyB: EBF6E5A05A4AC0D1D2B2A629BF808B50B51DB7ED5E7CBAE968783C925FCC679D
+: pubkeyA: 048D05F3D3FC92A06F97B3D6861D0C9425483E16E2F6AA2729F99211FF1B364E10A46B47A96EF995785245FC5302EF45A0D5EF1486B9865603969118D455AFBB53
+: pubkeyB: 04EFB6C4A48C69D85C6831922530536FE4500D16F90A454960465CDBF178E4728373D41625F3906A69107463FDD0FA03A1C4E1EB619968DEFEB41D1338B65049D4
+: agreekey: 3C027AF77D256133E465CE56ABC1CF31B3D428FD5FE528A4481BCF5D295DAA69
+
+** Existing key(Hex) - Create sessionkey with PriKey A, PubKey B
+#+HEADER: :var A_PRIVATE_KEY = "272381629D174EAD2F3939F2FFDCFCFDAFB5885E789EBA30969127F6B6E8F8E2"
+#+HEADER: :var B_PUBLIC_KEY  = "04EFB6C4A48C69D85C6831922530536FE4500D16F90A454960465CDBF178E4728373D41625F3906A69107463FDD0FA03A1C4E1EB619968DEFEB41D1338B65049D4"
+#+begin_src janet
+  (use botan)
+  (let [prikey1-mpi (mpi/from-hex-str A_PRIVATE_KEY)
+
+        pubkey2-mpi-x (mpi/from-hex-str (string/slice B_PUBLIC_KEY 2 (+ 2 (/ (- (length B_PUBLIC_KEY) 2) 2))))
+        pubkey2-mpi-y (mpi/from-hex-str (string/slice B_PUBLIC_KEY (+ 2 (/ (- (length B_PUBLIC_KEY) 2) 2))))
+
+        prikey1 (privkey/load-ecdh "secp256r1" prikey1-mpi)
+        pubkey2 (pubkey/load-ecdh "secp256r1" pubkey2-mpi-x pubkey2-mpi-y)
+
+        pk-ka (pk-key-agreement/new prikey1 "Raw")
+        agreekey (:agree pk-ka (:get-public-point pubkey2) "")]
+    (print "prikeyA: " (hex-encode (:to-bin prikey1-mpi)))
+    (print "pubkeyB: " (hex-encode (:get-public-point pubkey2)))
+    (print "agreekey: " (hex-encode agreekey)))
+#+end_src
+
+#+RESULTS:
+: prikeyA: 272381629D174EAD2F3939F2FFDCFCFDAFB5885E789EBA30969127F6B6E8F8E2
+: pubkeyB: 04EFB6C4A48C69D85C6831922530536FE4500D16F90A454960465CDBF178E4728373D41625F3906A69107463FDD0FA03A1C4E1EB619968DEFEB41D1338B65049D4
+: agreekey: 3C027AF77D256133E465CE56ABC1CF31B3D428FD5FE528A4481BCF5D295DAA69
