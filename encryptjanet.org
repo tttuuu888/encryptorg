@@ -1133,3 +1133,148 @@
 
 #+RESULTS:
 : 102030405060708090A0B0C0D0E0F000
+
+* DES
+** DES
+*** Encrypt
+#+HEADER: :var KEY  = "0001020304050607"
+#+HEADER: :var TEXT = "0011223344556677"
+#+begin_src janet
+  (use botan)
+  (let [bc (block-cipher/new "DES")]
+    (:set-key bc (hex-decode KEY))
+    (print (hex-encode (:encrypt bc (hex-decode TEXT)))))
+#+end_src
+
+#+RESULTS:
+: 3EF0A891CF8ED990
+
+*** Decrypt
+#+HEADER: :var KEY       = "0001020304050607"
+#+HEADER: :var ENCRYPTED = "3EF0A891CF8ED990"
+#+begin_src janet
+  (use botan)
+  (let [bc (block-cipher/new "DES")]
+    (:set-key bc (hex-decode KEY))
+    (print (hex-encode (:decrypt bc (hex-decode ENCRYPTED)))))
+#+end_src
+
+#+RESULTS:
+: 0011223344556677
+
+** DES-CBC NoPadding
+*** Encrypt
+#+HEADER: :var KEY  = "0001020304050607"
+#+HEADER: :var IV   = "1122334455667788"
+#+HEADER: :var TEXT = "1020304050607080"
+#+begin_src janet
+  (use botan)
+  (let [sc (cipher/new "DES/CBC/NoPadding" :encrypt)]
+    (:set-key sc (hex-decode KEY))
+    (:start sc (hex-decode IV))
+    (print (hex-encode (:finish sc (hex-decode TEXT)))))
+#+end_src
+
+#+RESULTS:
+: 6ACC204F8EFBCCC7
+*** Decrypt
+#+HEADER: :var KEY       = "0001020304050607"
+#+HEADER: :var IV        = "1122334455667788"
+#+HEADER: :var ENCRYPTED = "6ACC204F8EFBCCC7"
+#+begin_src janet
+  (use botan)
+  (let [sc (cipher/new "DES/CBC/NoPadding" :decrypt)]
+    (:set-key sc (hex-decode KEY))
+    (:start sc (hex-decode IV))
+    (print (hex-encode (:finish sc (hex-decode ENCRYPTED)))))
+#+end_src
+
+#+RESULTS:
+: 1020304050607080
+** DES-CBC PKCS7 Padding
+*** Encrypt
+#+HEADER: :var KEY  = "0001020304050607"
+#+HEADER: :var IV   = "1122334455667788"
+#+HEADER: :var TEXT = "1020304050607080"
+#+begin_src janet
+  (use botan)
+  (let [sc (cipher/new "DES/CBC/PKCS7" :encrypt)]
+    (:set-key sc (hex-decode KEY))
+    (:start sc (hex-decode IV))
+    (print (hex-encode (:finish sc (hex-decode TEXT)))))
+#+end_src
+
+#+RESULTS:
+: 6ACC204F8EFBCCC7C80EE4F58CA1A2E5
+*** Decrypt
+#+HEADER: :var KEY       = "0001020304050607"
+#+HEADER: :var IV        = "1122334455667788"
+#+HEADER: :var ENCRYPTED = "6ACC204F8EFBCCC7C80EE4F58CA1A2E5"
+#+begin_src janet
+  (use botan)
+  (let [sc (cipher/new "DES/CBC/PKCS7" :decrypt)]
+    (:set-key sc (hex-decode KEY))
+    (:start sc (hex-decode IV))
+    (print (hex-encode (:finish sc (hex-decode ENCRYPTED)))))
+#+end_src
+
+#+RESULTS:
+: 1020304050607080
+** DES-CBC OneAndZeros Padding
+*** Encrypt
+#+HEADER: :var KEY  = "0001020304050607"
+#+HEADER: :var IV   = "1122334455667788"
+#+HEADER: :var TEXT = "1020304050607080"
+#+begin_src janet
+  (use botan)
+  (let [sc (cipher/new "DES/CBC/OneAndZeros" :encrypt)]
+    (:set-key sc (hex-decode KEY))
+    (:start sc (hex-decode IV))
+    (print (hex-encode (:finish sc (hex-decode TEXT)))))
+#+end_src
+
+#+RESULTS:
+: 6ACC204F8EFBCCC7FD7B57744B67C0A9
+*** Decrypt
+#+HEADER: :var KEY       = "0001020304050607"
+#+HEADER: :var IV        = "1122334455667788"
+#+HEADER: :var ENCRYPTED = "6ACC204F8EFBCCC7FD7B57744B67C0A9"
+#+begin_src janet
+  (use botan)
+  (let [sc (cipher/new "DES/CBC/OneAndZeros" :decrypt)]
+    (:set-key sc (hex-decode KEY))
+    (:start sc (hex-decode IV))
+    (print (hex-encode (:finish sc (hex-decode ENCRYPTED)))))
+#+end_src
+
+#+RESULTS:
+: 1020304050607080
+** DES-CTR
+*** Encrypt
+#+HEADER: :var KEY  = "0001020304050607"
+#+HEADER: :var IV   = "1122334455667788"
+#+HEADER: :var TEXT = "1020304050607080"
+#+begin_src janet
+  (use botan)
+  (let [sc (cipher/new "DES/CTR" :encrypt)]
+    (:set-key sc (hex-decode KEY))
+    (:start sc (hex-decode IV))
+    (print (hex-encode (:finish sc (hex-decode TEXT)))))
+#+end_src
+
+#+RESULTS:
+: DC958B81223682A7
+*** Decrypt
+#+HEADER: :var KEY       = "0001020304050607"
+#+HEADER: :var IV        = "1122334455667788"
+#+HEADER: :var ENCRYPTED = "DC958B81223682A7"
+#+begin_src janet
+  (use botan)
+  (let [sc (cipher/new "DES/CTR" :decrypt)]
+    (:set-key sc (hex-decode KEY))
+    (:start sc (hex-decode IV))
+    (print (hex-encode (:finish sc (hex-decode ENCRYPTED)))))
+#+end_src
+
+#+RESULTS:
+: 1020304050607080
