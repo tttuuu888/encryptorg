@@ -1583,3 +1583,86 @@
 
 #+RESULTS:
 : valid?: true
+
+* KDF
+** SP-800-108 KDF
+*** SP-800-108-Counter
+#+HEADER: :var KI      = "000102030405060708090A0B0C0D0E0F"
+#+HEADER: :var SALT    = "02"
+#+HEADER: :var LABEL   = "03"
+#+HEADER: :var KEY_LEN = 16
+#+begin_src janet
+  (use botan)
+  (print
+   (hex-encode
+    (kdf "SP800-108-Counter(CMAC(AES-128))"
+         KEY_LEN (hex-decode KI) (hex-decode SALT) (hex-decode LABEL))))
+#+end_src
+
+#+RESULTS:
+: 1B258D35FCA9D012E7D3B7A506FBA3A4
+** HKDF
+*** HKDF - Text passphrase
+#+HEADER: :var PASSPHRASE = "abcd"
+#+HEADER: :var SALT       = "102030405060708090A0B0C0D0E0F000"
+#+HEADER: :var INFO       = ""
+#+HEADER: :var KEY_LEN    = 32
+#+begin_src janet
+  (use botan)
+  (print
+   (hex-encode
+    (kdf "HKDF(HMAC(SHA-256))"
+         KEY_LEN PASSPHRASE (hex-decode SALT) (hex-decode INFO))))
+#+end_src
+
+#+RESULTS:
+: 7B07FAB24B269299C42E6E8ED99760324CD302BC5D0BD6CCE45896C7E1BAD533
+
+*** HKDF - HEX passphrase
+#+HEADER: :var PASSPHRASE = "000102030405060708090A0B0C0D0E0F"
+#+HEADER: :var SALT       = "102030405060708090A0B0C0D0E0F000"
+#+HEADER: :var INFO       = ""
+#+HEADER: :var KEY_LEN    = 32
+#+begin_src janet
+  (use botan)
+  (print
+   (hex-encode
+    (kdf "HKDF(HMAC(SHA-256))"
+     KEY_LEN (hex-decode PASSPHRASE) (hex-decode SALT) (hex-decode INFO))))
+#+end_src
+
+#+RESULTS:
+: 11E806DCCE73A454CB16AF7EE68F567C5DCD568F305459503A59D0BA17EF970A
+
+** PBKDF2
+*** PBKDF2 - Text passphrase
+#+HEADER: :var PASSPHRASE = "abcd"
+#+HEADER: :var SALT       = "102030405060708090A0B0C0D0E0F000"
+#+HEADER: :var ITERATION  = 1001
+#+HEADER: :var KEY_LEN    = 32
+#+begin_src janet
+  (use botan)
+  (let [[salt iter psk]
+        (pbkdf "PBKDF2(SHA-256)"
+               PASSPHRASE KEY_LEN ITERATION (hex-decode SALT))]
+    (print (hex-encode psk)))
+#+end_src
+
+#+RESULTS:
+: DECF9EF197B87ABBDB6CBA9E81A7BCB8AC36BB2BFA3B93746C8042227A27CFEA
+
+*** PBKDF2 - HEX passphrase
+#+HEADER: :var PASSPHRASE = "000102030405060708090A0B0C0D0E0F"
+#+HEADER: :var SALT       = "102030405060708090A0B0C0D0E0F000"
+#+HEADER: :var ITERATION  = 1001
+#+HEADER: :var KEY_LEN    = 32
+#+begin_src janet
+  (use botan)
+  (let [[salt iter psk]
+        (pbkdf "PBKDF2(SHA-256)"
+               (hex-decode PASSPHRASE) KEY_LEN ITERATION (hex-decode SALT))]
+    (print (hex-encode psk)))
+#+end_src
+
+#+RESULTS:
+: 9CA9E2C9F93EA70B744F9F751637B6C4EA7841F27BFF884902BF5CB48690F229
