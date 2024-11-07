@@ -12,11 +12,53 @@
 #+RESULTS:
 : 88D4266FD4E6338D13B845FCF289579D209C897823B9217DA3E161936F031589
 
+** Plain 2 text input
+#+HEADER: :var TEXT1 = "ab"
+#+HEADER: :var TEXT2 = "cd"
+#+begin_src janet
+  (use botan)
+  (let [hash (hash/new "SHA-256")]
+    (:update hash TEXT1)
+    (:update hash TEXT2)
+    (print (hex-encode (:final hash))))
+#+end_src
+
+#+RESULTS:
+: 88D4266FD4E6338D13B845FCF289579D209C897823B9217DA3E161936F031589
+
+** Plain text and Hex input
+#+HEADER: :var TEXT = "abcd"
+#+HEADER: :var HEX = "0102"
+#+begin_src janet
+  (use botan)
+  (let [hash (hash/new "SHA-256")]
+    (:update hash TEXT)
+    (:update hash (hex-decode HEX))
+    (print (hex-encode (:final hash))))
+#+end_src
+
+#+RESULTS:
+: 36D00CEFCBD3832F302C5E3FBFCC917ECD9BDBF497DE9E4525939CD783A800DD
+
 ** Hex input
 #+HEADER: :var INPUT = "01020304"
 #+begin_src janet
   (use botan)
   (print (hex-encode (:final (:update (hash/new "SHA-256") (hex-decode INPUT)))))
+#+end_src
+
+#+RESULTS:
+: 9F64A747E1B97F131FABB6B447296C9B6F0201E79FB3C5356E6C77E89B6A806A
+
+** Hex 2 input
+#+HEADER: :var HEX1 = "0102"
+#+HEADER: :var HEX2 = "0304"
+#+begin_src janet
+  (use botan)
+  (let [hash (hash/new "SHA-256")]
+    (:update hash (hex-decode HEX1))
+    (:update hash (hex-decode HEX2))
+    (print (hex-encode (:final hash))))
 #+end_src
 
 #+RESULTS:
