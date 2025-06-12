@@ -1549,7 +1549,6 @@
 #+begin_src janet
   (use botan)
   (let [prikey1 (privkey/load-ecdsa "secp256r1" (mpi/new PRIVATE_KEY 16))
-
         pk-sig (pk-sign/new prikey1 "EMSA1(SHA-256)")
 
         text TEXT
@@ -1570,18 +1569,19 @@
 #+begin_src janet
   (use botan)
   (let [prikey1 (privkey/load-ecdsa "secp256r1" (mpi/new PRIVATE_KEY 16))
-
         pk-sig (pk-sign/new prikey1 "EMSA1(SHA-256)")
 
         text (hex-decode TEXT)
         signature (:finish (:update pk-sig text))]
     (print "prikey:    " (hex-encode (:to-bin (:get-field prikey1 "x"))))
+    (print "pubkey:    " (hex-encode (:to-raw (:get-pubkey prikey1))))
     (print "input:     " (hex-encode text))
     (print "signature: " (hex-encode signature)))
 #+end_src
 
 #+RESULTS:
 : prikey:    DBC868EF66949314FC040180FC6F1A9867466028364140361FF770733B23EF76
+: pubkey:    04A9A712C7B56F3C878F230C6F6F31564D11D29F9E30A146E7F99904F6FD743708662C3B989201E6437F9DC261AF500F68C93EF2382F93F9B842E679F5297C1907
 : input:     000102030405060708090A0B0C0D0E0F000102030405060708090A0B0C0D0E0F
 : signature: 77A75FD1894F4113B5904CE6FBB8819B658856266FFCE3417C799C8E9163D87865CC4D12F3504181C53BAE8C1D497764E47080B73C72764D5F6E717C48E08896
 
@@ -1595,7 +1595,6 @@
         pubkey1-mpi-y (mpi/new (string/slice PUBLIC_KEY (+ 2 (/ (- (length PUBLIC_KEY) 2) 2))) 16)
 
         pubkey1 (pubkey/load-ecdsa "secp256r1" pubkey1-mpi-x pubkey1-mpi-y)
-
         pk-veri (pk-verify/new pubkey1 "EMSA1(SHA-256)")
 
         text TEXT
@@ -1615,11 +1614,56 @@
         pubkey1-mpi-y (mpi/new (string/slice PUBLIC_KEY (+ 2 (/ (- (length PUBLIC_KEY) 2) 2))) 16)
 
         pubkey1 (pubkey/load-ecdsa "secp256r1" pubkey1-mpi-x pubkey1-mpi-y)
-
         pk-veri (pk-verify/new pubkey1 "EMSA1(SHA-256)")
 
         text (hex-decode TEXT)
         sig-verify (:finish (:update pk-veri text) (hex-decode SIGNATURE))]
+    (print "QX: "(hex-encode (:to-bin pubkey1-mpi-x)))
+    (print "QY: " (hex-encode (:to-bin pubkey1-mpi-y)))
+    (print "valid?: " sig-verify))
+#+end_src
+
+#+RESULTS:
+: QX: A9A712C7B56F3C878F230C6F6F31564D11D29F9E30A146E7F99904F6FD743708
+: QY: 662C3B989201E6437F9DC261AF500F68C93EF2382F93F9B842E679F5297C1907
+: valid?: true
+
+** Existing key - Signature check with Qx and Qy - HEX input
+#+HEADER: :var TEXT        = "000102030405060708090A0B0C0D0E0F000102030405060708090A0B0C0D0E0F"
+#+HEADER: :var QX          = "A9A712C7B56F3C878F230C6F6F31564D11D29F9E30A146E7F99904F6FD743708"
+#+HEADER: :var QY          = "662C3B989201E6437F9DC261AF500F68C93EF2382F93F9B842E679F5297C1907"
+#+HEADER: :var SIGNATURE   = "999ED1ADF893B7E4812D43AF1205FCAC40B55FAEA44EEAF0B040F4596D7DA0AD3767A2381D288EFB5F2B7684F9A385710653B2C1E094B9C9DEF8A3898F734C78"
+#+begin_src janet
+  (use botan)
+  (let [pubkey1-mpi-x (mpi/new QX 16)
+        pubkey1-mpi-y (mpi/new QY 16)
+
+        pubkey1 (pubkey/load-ecdsa "secp256r1" pubkey1-mpi-x pubkey1-mpi-y)
+        pk-veri (pk-verify/new pubkey1 "EMSA1(SHA-256)")
+
+        text (hex-decode TEXT)
+        sig-verify (:finish (:update pk-veri text) (hex-decode SIGNATURE))]
+    (print "valid?: " sig-verify))
+#+end_src
+
+#+RESULTS:
+: valid?: true
+
+** Existing key - Signature check with Qx and Qy - Pre-hashed HEX input
+#+HEADER: :var HASHED_HEX  = "a36a7d6424763633320ca799667f1b79955f079fb1b6dc264058af41"
+#+HEADER: :var QX          = "0aaeed6dd1ae020d6eefc98ec4241ac93cbd3c8afed05bb28007e7da5727571b"
+#+HEADER: :var QY          = "2dda1d5b7872eb94dfffb456115037ff8d3e72f8ebdd8fcfc42391f96809be69"
+#+HEADER: :var SIGNATURE   = "8cb9f41dfdcb9604e0725ac9b78fc0db916dc071186ee982f6dba3da36f02efa5c87fe868fd4282fb114f5d70e9590a10a5d35cedf3ff6402ba5c4344738a32e"
+#+begin_src janet
+  (use botan)
+  (let [pubkey1-mpi-x (mpi/new QX 16)
+        pubkey1-mpi-y (mpi/new QY 16)
+
+        pubkey1 (pubkey/load-ecdsa "secp256r1" pubkey1-mpi-x pubkey1-mpi-y)
+        pk-veri (pk-verify/new pubkey1 "Raw")
+
+        input (hex-decode HASHED_HEX)
+        sig-verify (:finish (:update pk-veri input) (hex-decode SIGNATURE))]
     (print "valid?: " sig-verify))
 #+end_src
 
